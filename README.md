@@ -7,7 +7,7 @@ The goal with this analysis is to give an answer to these **two scientific quest
 - **Will there be more or less Arctic sea ice at the end of this century? (why? what does it depend on?)**
 - **In which season the Arctic sea ice decrease will be the largest? (why? what does it depend on?)**
 
-The final report around these questions and the analysis can be found in the __insérer_lien_fichier__.
+The final report around these questions and the analysis can be found in the __insérer_lien_fichier__. This project has been done by Augustin Lambotte and Amaury Laridon.
 
 ### Organisation of the files 
 
