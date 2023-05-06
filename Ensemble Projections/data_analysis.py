@@ -35,9 +35,9 @@ figure = plt.figure(figsize=(16, 10))
 
 ################################################### Read Data ##############################################################
 
-data_dir = "/home/amaury/Bureau/LPHYS2265 - Sea ice ocean atmosphere interactions in polar regions/Projet - Multimodel Analysis/Ensemble Projections/"
+#data_dir = "/home/amaury/Bureau/LPHYS2265 - Sea ice ocean atmosphere interactions in polar regions/Projet - Multimodel Analysis/Ensemble Projections/"
 ##### Read CTL #####
-CTL = loadmat(data_dir + "CTL.mat")
+CTL = loadmat("./CTL.mat")
 hi = CTL["hi"]
 hs = CTL["hs"]
 Tsu = CTL["Tsu"]
@@ -62,7 +62,7 @@ for i in model_index_without_snow:
 
 ##### Read PR #####
 
-PR = loadmat(data_dir + "PR.mat")
+PR = loadmat("./PR.mat")
 Nmod = PR["Nmod"]
 model = PR["model"]
 year = PR["year"]
@@ -82,21 +82,11 @@ Tsumin = PR["Tsumin"]
 ##### Mean computation #####
 
 
-def mean_all_mod(data, N, N_mod):
+def mean_all_mod(data):
     """Computes the mean of all models of a given variable for each member of the interval N (could be 12 month or 365 days) and returns it as a list"""
-    mod_mean = np.zeros(N)
-    for day in range(N):
-        som = 0
-        for model in range(N_mod):
-            # if data[0, model] == "NaN":
-            # new_data = [x for x in data[:, model] if np.isnan(x) == False]
-            # print(np.shape(new_data))
-            som = som + data[day, model]
-        day_mean = som / N_mod
-        mod_mean[day] = day_mean
-
-    return mod_mean
-
+    #transform the 0 in Nan
+    data = np.where(data==0, np.nan, data)
+    return np.mean(ma.masked_invalid(data),axis = 1)
 
 def month_mean(data):
     """Given the array of a daily variable for one year returns the means for every month
