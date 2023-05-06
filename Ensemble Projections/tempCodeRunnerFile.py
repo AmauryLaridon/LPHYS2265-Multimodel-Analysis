@@ -77,7 +77,27 @@ Tsumin = PR["Tsumin"]
 ############################################################################################################################
 
 
-##### Tools function #####
+##################################################### Tools function #######################################################
+
+##### Mean computation #####
+
+
+def mean_all_mod(data, N, N_mod):
+    """Computes the mean of all models of a given variable for each member of the interval N (could be 12 month or 365 days) and returns it as a list"""
+    mod_mean = np.zeros(N)
+    for day in range(N):
+        som = 0
+        for model in range(N_mod):
+            # if data[0, model] == "NaN":
+            # new_data = [x for x in data[:, model] if np.isnan(x) == False]
+            # print(np.shape(new_data))
+            som = som + data[day, model]
+        day_mean = som / N_mod
+        mod_mean[day] = day_mean
+
+    return mod_mean
+
+
 def month_mean(data):
     """Given the array of a daily variable for one year returns the means for every month
     of that value."""
@@ -159,6 +179,9 @@ def month_mean(data):
     return data_mean_month_ar
 
 
+##### Error computation #####
+
+
 def err_annual_mean_thick(data1, data2):
     """Compute the annual mean value of a variable for a given model output and compare it to an other serie. Compute also the absolute error
     and the relative error between the two. The data2 is considered as the reference one for the relative error computation
@@ -190,6 +213,9 @@ def std_var_mean_thick(data):
     """returns the standard deviation of a given data set array"""
     std = np.std(data)
     return std
+
+
+##### Comparison data series #####
 
 
 def comp_ENS_MU71():
@@ -432,45 +458,6 @@ def comp_SIGUS_ENS():
     )
 
 
-################################################### Control Simulation #####################################################
-
-# Target seasonal cycle of ice thickness of MU71
-hi_MU71 = [
-    2.82,
-    2.89,
-    2.97,
-    3.04,
-    3.10,
-    3.14,
-    2.96,
-    2.78,
-    2.73,
-    2.71,
-    2.72,
-    2.75,
-]
-
-time_range_ctl = np.arange(Day_0, N_days_CTL, 1)
-time_range_ctl_month = np.arange(Month_0, N_month_CTL, 1)
-##### Mean computation #####
-
-
-def mean_all_mod(data, N, N_mod):
-    """Computes the mean of all models of a given variable for each member of the interval N (could be 12 month or 365 days) and returns it as a list"""
-    mod_mean = np.zeros(N)
-    for day in range(N):
-        som = 0
-        for model in range(N_mod):
-            # if data[0, model] == "NaN":
-            # new_data = [x for x in data[:, model] if np.isnan(x) == False]
-            # print(np.shape(new_data))
-            som = som + data[day, model]
-        day_mean = som / N_mod
-        mod_mean[day] = day_mean
-
-    return mod_mean
-
-
 ##### Display #####
 
 
@@ -641,15 +628,39 @@ def subplot_TSIMAL_SIGUS_ENS():
     plt.clf()
 
 
+# Target seasonal cycle of ice thickness of MU71
+hi_MU71 = [
+    2.82,
+    2.89,
+    2.97,
+    3.04,
+    3.10,
+    3.14,
+    2.96,
+    2.78,
+    2.73,
+    2.71,
+    2.72,
+    2.75,
+]
+
+time_range_ctl = np.arange(
+    Day_0, N_days_CTL, 1
+)  # time range for the CTL simulations in days. Used for plot
+time_range_ctl_month = np.arange(
+    Month_0, N_month_CTL, 1
+)  # time range for the CTL simulations in month. Used for plot
+
+
 if __name__ == "__main__":
-    ########################################Control Simulations Analysis #####################################
+    ########################################Control Simulations Analysis #########################################
     ##### Plot of the ensemble simulations with daily resolution #####
-    """plot_all_mod(data=hi, data_name="hi", N_mod=N_mod_CTL)
+    plot_all_mod(data=hi, data_name="hi", N_mod=N_mod_CTL)
     plot_all_mod(data=Tsu, data_name="Tsu", N_mod=N_mod_CTL)
     plot_all_mod(data=hs, data_name="hs", N_mod=N_mod_CTL)
     subplot_all_mod(
         data1=hi, data2=Tsu, data3=hs, data_name=["hi,Tsu,hs"], N_mod=N_mod_CTL
-    )"""
+    )
     ### Computation of the month mean of the variables ###
     # hi #
     hi_mean_month = np.zeros((12, N_mod_CTL))
@@ -683,3 +694,4 @@ if __name__ == "__main__":
     comp_TSIMAL_ENS()
     comp_SIGUS_ENS()
     subplot_TSIMAL_SIGUS_ENS()
+    ######################################## Projection Simulations Analysis #####################################
