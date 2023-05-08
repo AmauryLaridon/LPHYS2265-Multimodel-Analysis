@@ -81,20 +81,10 @@ Tsumin = PR["Tsumin"]
 ##### Mean computation #####
 
 
-def mean_all_mod(data, N, N_mod):
-    """Computes the mean of all models of a given variable for each member of the interval N (could be 12 month or 365 days) and returns it as a list"""
-    mod_mean = np.zeros(N)
-    for day in range(N):
-        som = 0
-        for model in range(N_mod):
-            # if data[0, model] == "NaN":
-            # new_data = [x for x in data[:, model] if np.isnan(x) == False]
-            # print(np.shape(new_data))
-            som = som + data[day, model]
-        day_mean = som / N_mod
-        mod_mean[day] = day_mean
-
-    return mod_mean
+def mean_all_mod(data):
+    # transform the 0 in Nan
+    data = np.where(data == 0, np.nan, data)
+    return np.mean(ma.masked_invalid(data), axis=1)
 
 
 def month_mean(data):
@@ -220,7 +210,7 @@ def std_var_mean_thick(data):
 def comp_ENS_MU71():
     ##### Comparison between ENSEMBLE and MU71 #####
     ### Computation of the error on annual mean ice thickness the ENSEMBLE mean with respect to MU71 ###
-    mean_ENS_hi = mean_all_mod(data=hi, N=N_days_CTL, N_mod=N_mod_CTL)
+    mean_ENS_hi = mean_all_mod(data=hi)
     mean_ENS_month_hi = month_mean(
         mean_ENS_hi
     )  # Computation of the month mean of hi ensemble mean #
@@ -256,7 +246,7 @@ def comp_ENS_MU71():
 def comp_TSIMAL_MU71():
     ##### Comparison between TSIMAL and MU71 #####
     ### Computation of the error on annual mean ice thickness the TSIMAL mean with respect to MU71 ###
-    mean_ENS_hi = mean_all_mod(data=hi, N=N_days_CTL, N_mod=N_mod_CTL)
+    mean_ENS_hi = mean_all_mod(data=hi)
     mean_ENS_month_hi = month_mean(
         mean_ENS_hi
     )  # Computation of the month mean of hi ensemble mean #
@@ -292,7 +282,7 @@ def comp_TSIMAL_MU71():
 def comp_SIGUS_MU71():
     ##### Comparison between SIGUS and MU71 #####
     ### Computation of the error on annual mean ice thickness the SIGUS mean with respect to MU71 ###
-    mean_ENS_hi = mean_all_mod(data=hi, N=N_days_CTL, N_mod=N_mod_CTL)
+    mean_ENS_hi = mean_all_mod(data=hi)
     mean_ENS_month_hi = month_mean(
         mean_ENS_hi
     )  # Computation of the month mean of hi ensemble mean #
@@ -328,7 +318,7 @@ def comp_SIGUS_MU71():
 def comp_TSIMAL_ENS():
     ##### Comparison between ENSEMBLE and TSIMAL #####
     ### Computation of the error on annual mean ice thickness of TSIMAL with respect to the ENSEMBLE ###
-    mean_ENS_hi = mean_all_mod(data=hi, N=N_days_CTL, N_mod=N_mod_CTL)
+    mean_ENS_hi = mean_all_mod(data=hi)
     mean_ENS_month_hi = month_mean(
         mean_ENS_hi
     )  # Computation of the month mean of hi ensemble mean #
@@ -360,7 +350,7 @@ def comp_TSIMAL_ENS():
         "------------------------------------------------------------------------------------"
     )
     ### Computation of the error on annual mean snow thickness of TSIMAL with respect to the ENSEMBLE ###
-    mean_ENS_hs = mean_all_mod(data=hs, N=N_days_CTL, N_mod=N_mod_CTL)
+    mean_ENS_hs = mean_all_mod(data=hs)
     mean_ENS_month_hs = month_mean(
         mean_ENS_hs
     )  # Computation of the month mean of hi ensemble mean #
@@ -392,7 +382,7 @@ def comp_TSIMAL_ENS():
         "------------------------------------------------------------------------------------"
     )
     ### Computation of the error on annual mean surface temperature of TSIMAL with respect to the ENSEMBLE ###
-    mean_ENS_Tsu = mean_all_mod(data=Tsu, N=N_days_CTL, N_mod=N_mod_CTL)
+    mean_ENS_Tsu = mean_all_mod(data=Tsu)
     mean_ENS_month_Tsu = month_mean(
         mean_ENS_Tsu
     )  # Computation of the month mean of hi ensemble mean #
@@ -430,7 +420,7 @@ def comp_TSIMAL_ENS():
 def comp_SIGUS_ENS():
     ##### Comparison between ENSEMBLE and SIGUS #####
     ### Computation of the error on annual mean ice thickness of SIGUS with respect to the ENSEMBLE ###
-    mean_ENS_hi = mean_all_mod(data=hi, N=N_days_CTL, N_mod=N_mod_CTL)
+    mean_ENS_hi = mean_all_mod(data=hi)
     mean_ENS_month_hi = month_mean(
         mean_ENS_hi
     )  # Computation of the month mean of hi ensemble mean #
@@ -462,7 +452,7 @@ def comp_SIGUS_ENS():
         "------------------------------------------------------------------------------------"
     )
     ### Computation of the error on annual mean snow thickness of SIGUS with respect to the ENSEMBLE ###
-    mean_ENS_hs = mean_all_mod(data=hs, N=N_days_CTL, N_mod=N_mod_CTL)
+    mean_ENS_hs = mean_all_mod(data=hs)
     mean_ENS_month_hs = month_mean(
         mean_ENS_hs
     )  # Computation of the month mean of hi ensemble mean #
@@ -494,7 +484,7 @@ def comp_SIGUS_ENS():
         "------------------------------------------------------------------------------------"
     )
     ### Computation of the error on annual mean surface temperature of SIGUS with respect to the ENSEMBLE ###
-    mean_ENS_Tsu = mean_all_mod(data=Tsu, N=N_days_CTL, N_mod=N_mod_CTL)
+    mean_ENS_Tsu = mean_all_mod(data=Tsu)
     mean_ENS_month_Tsu = month_mean(
         mean_ENS_Tsu
     )  # Computation of the month mean of hi ensemble mean #
@@ -573,7 +563,7 @@ def plot_all_mod(data, data_name, N_mod, extra_label):
             linewidth=4 * lab_size_fact,
             color="tab:green",
         )
-    mod_mean = mean_all_mod(data=data, N=Nbre, N_mod=N_mod)
+    mod_mean = mean_all_mod(data=data)
     # print(mod_mean)
     plt.plot(
         time_range,
@@ -651,7 +641,7 @@ def subplot_all_mod(data1, data2, data3, data_name, N_mod, extra_label):
         linewidth=2,
         color="tab:green",
     )
-    mod_mean = mean_all_mod(data=data1, N=Nbre, N_mod=N_mod)
+    mod_mean = mean_all_mod(data=data1)
     plt.plot(time_range, mod_mean, linewidth=2, color="tab:blue", label=r"Models Mean")
     plt.xlabel(label_x, size=10)
     plt.ylabel("Ice Thickness [m]", size=10)
@@ -664,7 +654,7 @@ def subplot_all_mod(data1, data2, data3, data_name, N_mod, extra_label):
     ax = plt.subplot(gs[0, 1])  # row 0, col 1
     for model in range(N_mod):
         plt.plot(time_range_ctl, data2[:, model], linewidth=0.5)
-    mod_mean = mean_all_mod(data=data2, N=N_days_CTL, N_mod=N_mod)
+    mod_mean = mean_all_mod(data=data2)
     plt.plot(
         time_range_ctl, mod_mean, linewidth=2, color="tab:blue", label=r"Models Mean"
     )
@@ -679,7 +669,7 @@ def subplot_all_mod(data1, data2, data3, data_name, N_mod, extra_label):
     ax = plt.subplot(gs[1, :])  # row 1, span all columns
     for model in range(N_mod):
         plt.plot(time_range_ctl, data3[:, model], linewidth=0.5)
-    mod_mean = mean_all_mod(data=data3, N=N_days_CTL, N_mod=N_mod)
+    mod_mean = mean_all_mod(data=data3)
     plt.plot(
         time_range_ctl, mod_mean, linewidth=2, color="tab:blue", label=r"Models Mean"
     )
@@ -723,7 +713,7 @@ def subplot_TSIMAL_SIGUS_ENS(data1, data2, data3, N_mod, extra_label):
     ax = plt.subplot(gs[0, 0])  # row 0, col 0
     plt.plot(time_range, data1[:, 13], linewidth=1, label="TSIMAL", color="red")
     plt.plot(time_range, data1[:, 11], linewidth=1, label="SIGUS", color="orange")
-    mod_mean = mean_all_mod(data=data1, N=Nbre, N_mod=N_mod)
+    mod_mean = mean_all_mod(data=data1)
     plt.plot(time_range, mod_mean, linewidth=2, color="tab:blue", label=r"Models Mean")
     plt.xlabel(label_x, size=10)
     plt.ylabel("Ice Thickness [m]", size=10)
@@ -736,7 +726,7 @@ def subplot_TSIMAL_SIGUS_ENS(data1, data2, data3, N_mod, extra_label):
     ax = plt.subplot(gs[0, 1])  # row 0, col 1
     plt.plot(time_range, data2[:, 13], linewidth=1, label="TSIMAL", color="red")
     plt.plot(time_range, data2[:, 11], linewidth=1, label="SIGUS", color="orange")
-    mod_mean = mean_all_mod(data=data2, N=Nbre, N_mod=N_mod)
+    mod_mean = mean_all_mod(data=data2)
     plt.plot(time_range, mod_mean, linewidth=2, color="tab:blue", label=r"Models Mean")
     plt.xlabel(label_x, size=10)
     plt.ylabel("Surface Temperature [°K]", size=10)
@@ -749,7 +739,7 @@ def subplot_TSIMAL_SIGUS_ENS(data1, data2, data3, N_mod, extra_label):
     ax = plt.subplot(gs[1, :])  # row 1, span all columns
     plt.plot(time_range, data3[:, 13], linewidth=1, label="TSIMAL", color="red")
     plt.plot(time_range, data3[:, 11], linewidth=1, label="SIGUS", color="orange")
-    mod_mean = mean_all_mod(data=data3, N=Nbre, N_mod=N_mod)
+    mod_mean = mean_all_mod(data=data3)
     plt.plot(time_range, mod_mean, linewidth=2, color="tab:blue", label=r"Models Mean")
     plt.xlabel(label_x, size=10)
     plt.ylabel("Snow Thickness [m]", size=10)
