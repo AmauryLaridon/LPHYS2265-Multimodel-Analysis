@@ -708,23 +708,26 @@ def subplot_TSIMAL_SIGUS_ENS(data1, data2, data3, N_mod, extra_label):
         time_range = time_range_ctl
         Nbre = N_days_CTL
         label_x = "Days"
+        x_ticks = np.arange(Day_0, 365, 50)
     if np.shape(data1)[0] == 12:
         time_range = time_range_ctl_month
         Nbre = N_month_CTL
         label_x = "Month"
+        x_ticks = np.arange(Day_0, 12, 6)
     elif np.shape(data1)[0] == 100:
         time_range = time_range_pr
         Nbre = N_years_PR
         label_x = "Year"
+        x_ticks = np.arange(Day_0, 100, 20)
     ### Figure 1 ###
     ax = plt.subplot(gs[0, 0])  # row 0, col 0
     plt.plot(time_range, data1[:, 13], linewidth=1, label="TSIMAL", color="red")
     plt.plot(time_range, data1[:, 11], linewidth=1, label="SIGUS", color="orange")
     mod_mean = mean_all_mod(data=data1, N=Nbre, N_mod=N_mod)
     plt.plot(time_range, mod_mean, linewidth=2, color="tab:blue", label=r"Models Mean")
-    plt.xlabel("Days", size=10)
+    plt.xlabel(label_x, size=10)
     plt.ylabel("Ice Thickness [m]", size=10)
-    plt.xticks(np.arange(0, Nbre, 50), fontsize=10)
+    plt.xticks(x_ticks, fontsize=10)
     plt.yticks(fontsize=10)
     plt.grid()
     plt.legend(fontsize=10)
@@ -735,9 +738,9 @@ def subplot_TSIMAL_SIGUS_ENS(data1, data2, data3, N_mod, extra_label):
     plt.plot(time_range, data2[:, 11], linewidth=1, label="SIGUS", color="orange")
     mod_mean = mean_all_mod(data=data2, N=Nbre, N_mod=N_mod)
     plt.plot(time_range, mod_mean, linewidth=2, color="tab:blue", label=r"Models Mean")
-    plt.xlabel("Days", size=10)
+    plt.xlabel(label_x, size=10)
     plt.ylabel("Surface Temperature [°K]", size=10)
-    plt.xticks(np.arange(0, Nbre, 50), fontsize=10)
+    plt.xticks(x_ticks, fontsize=10)
     plt.yticks(fontsize=10)
     plt.grid()
     plt.legend(fontsize=10)
@@ -748,9 +751,9 @@ def subplot_TSIMAL_SIGUS_ENS(data1, data2, data3, N_mod, extra_label):
     plt.plot(time_range, data3[:, 11], linewidth=1, label="SIGUS", color="orange")
     mod_mean = mean_all_mod(data=data3, N=Nbre, N_mod=N_mod)
     plt.plot(time_range, mod_mean, linewidth=2, color="tab:blue", label=r"Models Mean")
-    plt.xlabel("Days", size=10)
+    plt.xlabel(label_x, size=10)
     plt.ylabel("Snow Thickness [m]", size=10)
-    plt.xticks(np.arange(0, Nbre, 25), fontsize=10)
+    plt.xticks(x_ticks, fontsize=10)
     plt.yticks(fontsize=10)
     plt.grid()
     plt.legend(fontsize=10)
