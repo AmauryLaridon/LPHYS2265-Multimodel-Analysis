@@ -614,86 +614,6 @@ def plot_all_mod(data, data_name, N_mod, extra_label):
     plt.show()
     #plt.clf()
 
-def summarized_projection(display_single_models = False, save = False):
-    """
-        Plots all relevant informations about projection.
-        Turn displaY_single_models to True if you want to have see all the models results.
-    """
-    PR03_himean = himean_pr[:,:,0]
-    PR03_himax = himax_pr[:,:,0]
-    PR03_himin = himin_pr[:,:,0]
-    PR03_hsmax = hsmax_pr[:,:,0]
-    PR03_Tsumin = Tsumin_pr[:,:,0]
-    
-    PR06_himean = himean_pr[:,:,1]
-    PR06_himax = himax_pr[:,:,1]
-    PR06_himin = himin_pr[:,:,1]
-    PR06_hsmax = hsmax_pr[:,:,1]
-    PR06_Tsumin = Tsumin_pr[:,:,1]
-
-    PR12_himean = himean_pr[:,:,2]
-    PR12_himax = himax_pr[:,:,2]
-    PR12_himin = himin_pr[:,:,2]
-    PR12_hsmax = hsmax_pr[:,:,2]
-    PR12_Tsumin = Tsumin_pr[:,:,2]
-
-    # The following arrays have dims (n_proj = 3,n_year = 100, n_mod = 14):   -n_proj for the projection, 
-    #                                                                         -n_year for the year
-    #                                                                         -n_mod for the model 
-    PR_himean = np.array([PR03_himean,PR06_himean,PR12_himean])
-    PR_himax = np.array([PR03_himax,PR06_himax,PR12_himax])
-    PR_himin = np.array([PR03_himin,PR06_himin,PR12_himin])
-    PR_hsmax = np.array([PR03_hsmax,PR06_hsmax,PR12_hsmax])
-    PR_Tsumin = np.array([PR03_Tsumin,PR06_Tsumin,PR12_Tsumin])
-
-    #Regrouping all datas in a single dictionnary to allows faster and more flexible plotting.
-    Projections = {"himean":PR_himean,"himax":PR_himax,"himin":PR_himin,"hsmax":PR_hsmax,"Tsumin":PR_Tsumin}
-
-    for key in Projections.keys():
-        mean = np.mean(Projections[key], axis = 2)
-        std = np.std(Projections[key], axis = 2)/2
-        plt.title(f'Multi-model analysis for the variable: {key}')
-
-        #### - PR03 - ####
-        # Individuals models
-        if display_single_models:
-            plt.plot([year for year in range(100)],Projections[key][0,:,:], alpha=0.25,color = "tab:blue")
-        # ensemble mean
-        plt.plot([year for year in range(100)],mean[0,:],color = "tab:blue", label = 'PR03 mean',linewidth=4)
-        # shadow std
-        plt.fill_between([year for year in range(100)], mean[0,:] - std[0,:], mean[0,:] + std[0,:],alpha = 0.5,color = "tab:blue", label= '+/- std/2')
-        
-        #### - PR06 - ####
-        # Individuals models
-        if display_single_models:
-            plt.plot([year for year in range(100)],Projections[key][1,:,:], alpha=0.25,color = "tab:orange")
-        # ensemble mean
-        plt.plot([year for year in range(100)],mean[1,:],color = "tab:orange", label = 'PR06 mean',linewidth=4)
-        # shadow std
-        plt.fill_between([year for year in range(100)], mean[1,:] - std[1,:], mean[1,:] + std[1,:],alpha = 0.5,color = "tab:orange", label= '+/- std/2')
-        
-        #### - PR12 - ####
-        # Individuals models
-        if display_single_models:
-            plt.plot([year for year in range(100)],Projections[key][2,:,:], alpha=0.25,color = "tab:red")
-        # ensemble mean
-        plt.plot([year for year in range(100)],mean[2,:],color = "tab:red", label = 'PR12 mean',linewidth=4)
-        # shadow std
-        plt.fill_between([year for year in range(100)], mean[2,:] - std[2,:], mean[2,:] + std[2,:],alpha = 0.5,color = "tab:red", label= '+/- std/2')
-
-        plt.legend()
-        plt.grid()
-        if save:
-            plt.savefig('fig_ctl/'+str(key)+'.png')
-            plt.clf()
-        else:    
-            plt.show()
-
-
-
-summarized_projection(display_single_models=False, save = False)
-
-
 
 
 
@@ -780,23 +700,23 @@ def summarized_projection(display_single_models=False, save=False):
     Plots all relevant informations about projection.
     Turn displaY_single_models to True if you want to have see all the models results.
     """
-    PR03_himean = himean[:, :, 0]
-    PR03_himax = himax[:, :, 0]
-    PR03_himin = himin[:, :, 0]
-    PR03_hsmax = hsmax[:, :, 0]
-    PR03_Tsumin = Tsumin[:, :, 0]
+    PR03_himean = himean_pr[:, :, 0]
+    PR03_himax = himax_pr[:, :, 0]
+    PR03_himin = himin_pr[:, :, 0]
+    PR03_hsmax = hsmax_pr[:, :, 0]
+    PR03_Tsumin = Tsumin_pr[:, :, 0]
 
-    PR06_himean = himean[:, :, 1]
-    PR06_himax = himax[:, :, 1]
-    PR06_himin = himin[:, :, 1]
-    PR06_hsmax = hsmax[:, :, 1]
-    PR06_Tsumin = Tsumin[:, :, 1]
+    PR06_himean = himean_pr[:, :, 1]
+    PR06_himax = himax_pr[:, :, 1]
+    PR06_himin = himin_pr[:, :, 1]
+    PR06_hsmax = hsmax_pr[:, :, 1]
+    PR06_Tsumin = Tsumin_pr[:, :, 1]
 
-    PR12_himean = himean[:, :, 2]
-    PR12_himax = himax[:, :, 2]
-    PR12_himin = himin[:, :, 2]
-    PR12_hsmax = hsmax[:, :, 2]
-    PR12_Tsumin = Tsumin[:, :, 2]
+    PR12_himean = himean_pr[:, :, 2]
+    PR12_himax = himax_pr[:, :, 2]
+    PR12_himin = himin_pr[:, :, 2]
+    PR12_hsmax = hsmax_pr[:, :, 2]
+    PR12_Tsumin = Tsumin_pr[:, :, 2]
 
     # The following arrays have dims (n_proj = 3,n_year = 100, n_mod = 14):   -n_proj for the projection,
     #                                                                         -n_year for the year
@@ -923,6 +843,7 @@ def summarized_projection(display_single_models=False, save=False):
         else:
             plt.show()
 
+summarized_projection(display_single_models=False, save = False)
 
 def subplot_TSIMAL_SIGUS_ENS(data1, data2, data3, N_mod, extra_label):
     figure = plt.figure(figsize=(16, 10))
