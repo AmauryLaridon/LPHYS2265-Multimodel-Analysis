@@ -11,11 +11,15 @@
 import numpy as np
 import numpy.ma as ma
 import math
+
 import matplotlib.pyplot as plt
 from scipy.io import loadmat
 import matplotlib.gridspec as gridspec
 from sklearn.metrics import mean_squared_error
 
+#plt.rcParams["text.usetex"] = True
+import matplotlib as mpl
+mpl.rcParams.update(mpl.rcParamsDefault)
 ################################################### Parameters #############################################################
 
 ################################ Script Parameters #######################################
@@ -29,8 +33,9 @@ N_days_PR = 365 * N_years_PR  # number of days in the PR simulation [Adim]
 Day_0 = 0
 Month_0 = 0
 ################################ Display Parameters #######################################
-plt.rcParams["text.usetex"] = True
-save_dir = "/home/amaury/Bureau/LPHYS2265 - Sea ice ocean atmosphere interactions in polar regions/Projet - Multimodel Analysis/Figures/"
+
+
+save_dir = "./Figures/"
 figure = plt.figure(figsize=(16, 10))
 
 ################################################### Read Data ##############################################################
@@ -38,12 +43,12 @@ figure = plt.figure(figsize=(16, 10))
 #data_dir = "/home/amaury/Bureau/LPHYS2265 - Sea ice ocean atmosphere interactions in polar regions/Projet - Multimodel Analysis/Ensemble Projections/"
 ##### Read CTL #####
 CTL = loadmat("./CTL.mat")
-hi = CTL["hi"]
-hs = CTL["hs"]
-Tsu = CTL["Tsu"]
-Tw = CTL["Tw"]
-doy = CTL["doy"]
-model = CTL["model"]
+hi_ctl = CTL["hi"]
+hs_ctl = CTL["hs"]
+Tsu_ctl = CTL["Tsu"]
+Tw_ctl = CTL["Tw"]
+doy_ctl = CTL["doy"]
+model_ctl = CTL["model"]
 # one-liner to read a single variable
 
 ### Setting NaN value to the h_s variable for the models that don't have snow implemented ###
@@ -57,20 +62,20 @@ model_name_without_snow = [
 ]
 model_index_without_snow = [0, 1, 2, 3, 6, 8]
 for i in model_index_without_snow:
-    hs[:, i] = np.NaN
+    hs_ctl[:, i] = np.NaN
 
 
 ##### Read PR #####
 
 PR = loadmat("./PR.mat")
-Nmod = PR["Nmod"]
-model = PR["model"]
-year = PR["year"]
-himax = PR["himax"]
-himin = PR["himin"]
-himean = PR["himean"]
-hsmax = PR["hsmax"]
-Tsumin = PR["Tsumin"]
+Nmod_pr = PR["Nmod"]
+model_pr = PR["model"]
+year_pr = PR["year"]
+himax_pr = PR["himax"]
+himin_pr = PR["himin"]
+himean_pr = PR["himean"]
+hsmax_pr = PR["hsmax"]
+Tsumin_pr = PR["Tsumin"]
 
 ############################################################################################################################
 ###################################################### Data Analysis #######################################################
@@ -452,46 +457,117 @@ def comp_SIGUS_ENS():
 
 
 def plot_all_mod(data, data_name, N_mod):
-    if np.shape(data)[0] == 365:
-        time_range = time_range_ctl
-        Nbre = N_days_CTL
-        label_x = "Days"
-    if np.shape(data)[0] == 12:
-        time_range = time_range_ctl_month
-        Nbre = N_month_CTL
-        label_x = "Month"
+    
+    time_range = time_range_ctl
+    label_x = "Days"
     for model in range(N_mod):
         plt.plot(time_range, data[:, model])
-    if data_name == "hi":
-        plt.plot(
-            time_range_ctl_month,
-            hi_MU71,
-            label=r"$h_{i_{MU71}}$",
-            linewidth=4,
-            color="tab:green",
-        )
-    mod_mean = mean_all_mod(data=data, N=Nbre, N_mod=N_mod)
-    # print(mod_mean)
-    plt.plot(time_range, mod_mean, linewidth=4, color="tab:blue", label=r"Models Mean")
-    plt.title(
-        r"Comparison between ensemble members ($N_{mod} = 15$), their averages and the observation series (MU71)",
-        size=24,
-    )
-    plt.xlabel(label_x, size=20)
+    
+    #Computing the multi model mean.
+    mod_mean = mean_all_mod(data=data)
+
+    # Units for labelling
     if data_name == "hi" or data_name == "hi_mean_month":
         unit = "[m]"
     if data_name == "Tsu" or data_name == "Tsu_mean_month":
         unit = "[°K]"
     if data_name == "hs" or data_name == "hs_mean_month":
         unit = "[m]"
+
+    
+    plt.plot(time_range, mod_mean, linewidth=4, color="tab:blue", label=r"Models Mean")
+    plt.title(r"Comparison between ensemble members ($N_{mod} = 15$),",size=24)
+    plt.xlabel(label_x, size=20)
     plt.ylabel(data_name + unit, size=20)
     plt.xticks(fontsize=20)
     plt.yticks(fontsize=20)
     plt.grid()
     plt.legend(fontsize=20)
-    plt.savefig(save_dir + data_name + "_all_mod.png", dpi=300)
-    # plt.show()
-    plt.clf()
+    #plt.savefig(save_dir + data_name + "_all_mod000.png", dpi=300)
+    plt.show()
+    #plt.clf()
+
+def summarized_projection(display_single_models = False, save = False):
+    """
+        Plots all relevant informations about projection.
+        Turn displaY_single_models to True if you want to have see all the models results.
+    """
+    PR03_himean = himean_pr[:,:,0]
+    PR03_himax = himax_pr[:,:,0]
+    PR03_himin = himin_pr[:,:,0]
+    PR03_hsmax = hsmax_pr[:,:,0]
+    PR03_Tsumin = Tsumin_pr[:,:,0]
+    
+    PR06_himean = himean_pr[:,:,1]
+    PR06_himax = himax_pr[:,:,1]
+    PR06_himin = himin_pr[:,:,1]
+    PR06_hsmax = hsmax_pr[:,:,1]
+    PR06_Tsumin = Tsumin_pr[:,:,1]
+
+    PR12_himean = himean_pr[:,:,2]
+    PR12_himax = himax_pr[:,:,2]
+    PR12_himin = himin_pr[:,:,2]
+    PR12_hsmax = hsmax_pr[:,:,2]
+    PR12_Tsumin = Tsumin_pr[:,:,2]
+
+    # The following arrays have dims (n_proj = 3,n_year = 100, n_mod = 14):   -n_proj for the projection, 
+    #                                                                         -n_year for the year
+    #                                                                         -n_mod for the model 
+    PR_himean = np.array([PR03_himean,PR06_himean,PR12_himean])
+    PR_himax = np.array([PR03_himax,PR06_himax,PR12_himax])
+    PR_himin = np.array([PR03_himin,PR06_himin,PR12_himin])
+    PR_hsmax = np.array([PR03_hsmax,PR06_hsmax,PR12_hsmax])
+    PR_Tsumin = np.array([PR03_Tsumin,PR06_Tsumin,PR12_Tsumin])
+
+    #Regrouping all datas in a single dictionnary to allows faster and more flexible plotting.
+    Projections = {"himean":PR_himean,"himax":PR_himax,"himin":PR_himin,"hsmax":PR_hsmax,"Tsumin":PR_Tsumin}
+
+    for key in Projections.keys():
+        mean = np.mean(Projections[key], axis = 2)
+        std = np.std(Projections[key], axis = 2)/2
+        plt.title(f'Multi-model analysis for the variable: {key}')
+
+        #### - PR03 - ####
+        # Individuals models
+        if display_singel_models:
+            plt.plot([year for year in range(100)],Projections[key][0,:,:], alpha=0.25,color = "tab:blue")
+        # ensemble mean
+        plt.plot([year for year in range(100)],mean[0,:],color = "tab:blue", label = 'PR03 mean',linewidth=4)
+        # shadow std
+        plt.fill_between([year for year in range(100)], mean[0,:] - std[0,:], mean[0,:] + std[0,:],alpha = 0.5,color = "tab:blue", label= '+/- std/2')
+        
+        #### - PR06 - ####
+        # Individuals models
+        if display_singel_models:
+            plt.plot([year for year in range(100)],Projections[key][1,:,:], alpha=0.25,color = "tab:orange")
+        # ensemble mean
+        plt.plot([year for year in range(100)],mean[1,:],color = "tab:orange", label = 'PR06 mean',linewidth=4)
+        # shadow std
+        plt.fill_between([year for year in range(100)], mean[1,:] - std[1,:], mean[1,:] + std[1,:],alpha = 0.5,color = "tab:orange", label= '+/- std/2')
+        
+        #### - PR12 - ####
+        # Individuals models
+        if display_single_models:
+            plt.plot([year for year in range(100)],Projections[key][2,:,:], alpha=0.25,color = "tab:red")
+        # ensemble mean
+        plt.plot([year for year in range(100)],mean[2,:],color = "tab:red", label = 'PR12 mean',linewidth=4)
+        # shadow std
+        plt.fill_between([year for year in range(100)], mean[2,:] - std[2,:], mean[2,:] + std[2,:],alpha = 0.5,color = "tab:red", label= '+/- std/2')
+
+        plt.legend()
+        plt.grid()
+        if save:
+            plt.savefig('fig_ctl/'+str(key)+'.png')
+            plt.clf()
+        else:    
+            plt.show()
+
+
+
+summarized_projection(display_single_models=False, save = False)
+
+
+
 
 
 def subplot_all_mod(data1, data2, data3, data_name, N_mod):
@@ -617,7 +693,6 @@ def subplot_TSIMAL_SIGUS_ENS():
     plt.savefig(save_dir + "subplot_TSIMAL_SIGUS_ENS.png", dpi=300)
     plt.clf()
 
-
 # Target seasonal cycle of ice thickness of MU71
 hi_MU71 = [
     2.82,
@@ -642,7 +717,8 @@ time_range_ctl_month = np.arange(
 )  # time range for the CTL simulations in month. Used for plot
 
 
-if __name__ == "__main__":
+
+""" if __name__ == "__main__":
     ######################################## Control Simulations Analysis #########################################
     ##### Plot of the ensemble simulations with daily resolution #####
     plot_all_mod(data=hi, data_name="hi", N_mod=N_mod_CTL)
@@ -684,4 +760,4 @@ if __name__ == "__main__":
     comp_TSIMAL_ENS()
     comp_SIGUS_ENS()
     subplot_TSIMAL_SIGUS_ENS()
-    ######################################## Projection Simulations Analysis #####################################
+    ######################################## Projection Simulations Analysis ##################################### """
