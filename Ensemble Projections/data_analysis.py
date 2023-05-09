@@ -656,7 +656,7 @@ def summarized_projection(display_single_models = False, save = False):
 
         #### - PR03 - ####
         # Individuals models
-        if display_singel_models:
+        if display_single_models:
             plt.plot([year for year in range(100)],Projections[key][0,:,:], alpha=0.25,color = "tab:blue")
         # ensemble mean
         plt.plot([year for year in range(100)],mean[0,:],color = "tab:blue", label = 'PR03 mean',linewidth=4)
@@ -665,7 +665,7 @@ def summarized_projection(display_single_models = False, save = False):
         
         #### - PR06 - ####
         # Individuals models
-        if display_singel_models:
+        if display_single_models:
             plt.plot([year for year in range(100)],Projections[key][1,:,:], alpha=0.25,color = "tab:orange")
         # ensemble mean
         plt.plot([year for year in range(100)],mean[1,:],color = "tab:orange", label = 'PR06 mean',linewidth=4)
@@ -1022,7 +1022,7 @@ time_range_pr = np.arange(
 """ if __name__ == "__main__":
     ######################################## Control Simulations Analysis #########################################
     ##### Plot of the ensemble simulations with daily resolution #####
-    """plot_all_mod(data=hi, data_name="hi", N_mod=N_mod_CTL, extra_label="CTL")
+    plot_all_mod(data=hi, data_name="hi", N_mod=N_mod_CTL, extra_label="CTL")
     plot_all_mod(data=Tsu, data_name="Tsu", N_mod=N_mod_CTL, extra_label="CTL")
     plot_all_mod(data=hs, data_name="hs", N_mod=N_mod_CTL, extra_label="CTL")
     subplot_all_mod(
