@@ -684,6 +684,155 @@ def subplot_all_mod(data1, data2, data3, data_name, N_mod, extra_label):
     plt.clf()
 
 
+def summarized_projection(display_single_models=False, save=False):
+    """
+    Plots all relevant informations about projection.
+    Turn displaY_single_models to True if you want to have see all the models results.
+    """
+    PR03_himean = himean[:, :, 0]
+    PR03_himax = himax[:, :, 0]
+    PR03_himin = himin[:, :, 0]
+    PR03_hsmax = hsmax[:, :, 0]
+    PR03_Tsumin = Tsumin[:, :, 0]
+
+    PR06_himean = himean[:, :, 1]
+    PR06_himax = himax[:, :, 1]
+    PR06_himin = himin[:, :, 1]
+    PR06_hsmax = hsmax[:, :, 1]
+    PR06_Tsumin = Tsumin[:, :, 1]
+
+    PR12_himean = himean[:, :, 2]
+    PR12_himax = himax[:, :, 2]
+    PR12_himin = himin[:, :, 2]
+    PR12_hsmax = hsmax[:, :, 2]
+    PR12_Tsumin = Tsumin[:, :, 2]
+
+    # The following arrays have dims (n_proj = 3,n_year = 100, n_mod = 14):   -n_proj for the projection,
+    #                                                                         -n_year for the year
+    #                                                                         -n_mod for the model
+    PR_himean = np.array([PR03_himean, PR06_himean, PR12_himean])
+    PR_himax = np.array([PR03_himax, PR06_himax, PR12_himax])
+    PR_himin = np.array([PR03_himin, PR06_himin, PR12_himin])
+    PR_hsmax = np.array([PR03_hsmax, PR06_hsmax, PR12_hsmax])
+    PR_Tsumin = np.array([PR03_Tsumin, PR06_Tsumin, PR12_Tsumin])
+
+    # Regrouping all datas in a single dictionnary to allows faster and more flexible plotting.
+    Projections = {
+        "himean": PR_himean,
+        "himax": PR_himax,
+        "himin": PR_himin,
+        "hsmax": PR_hsmax,
+        "Tsumin": PR_Tsumin,
+    }
+
+    for key in Projections.keys():
+        mean = np.mean(Projections[key], axis=2)
+        std = np.std(Projections[key], axis=2) / 2
+        plt.title(f"Multi-model Analysis for PR Scenarios : {key}", size=28)
+        if key == "himean":
+            y_label = r"$hi_{mean} [m]$"
+        if key == "himax":
+            y_label = r"$hi_{max} [m]$"
+        if key == "himin":
+            y_label = r"$hi_{min} [m]$"
+        if key == "hsmax":
+            y_label = r"$hs_{max} [m]$"
+        if key == "Tsumin":
+            y_label = r"$Tsu_{min} [{}^{\circ}K]$"
+        #### - PR03 - ####
+        # Individuals models
+        if display_single_models:
+            plt.plot(
+                [year for year in range(N_years_PR)],
+                Projections[key][0, :, :],
+                alpha=0.6,
+                color="tab:blue",
+            )
+        # ensemble mean
+        plt.plot(
+            [year for year in range(N_years_PR)],
+            mean[0, :],
+            color="tab:blue",
+            label=r"$\mu_{PR03}$",
+            linewidth=4,
+        )
+        # shadow std
+        plt.fill_between(
+            [year for year in range(N_years_PR)],
+            mean[0, :] - std[0, :],
+            mean[0, :] + std[0, :],
+            alpha=0.7,
+            color="tab:blue",
+            label=r"$\mu_{PR03} \pm \frac{\sigma_{PR03}}{2}$",
+        )
+
+        #### - PR06 - ####
+        # Individuals models
+        if display_single_models:
+            plt.plot(
+                [year for year in range(N_years_PR)],
+                Projections[key][1, :, :],
+                alpha=0.6,
+                color="tab:orange",
+            )
+        # ensemble mean
+        plt.plot(
+            [year for year in range(N_years_PR)],
+            mean[1, :],
+            color="tab:orange",
+            label=r"$\mu_{PR06}$",
+            linewidth=4,
+        )
+        # shadow std
+        plt.fill_between(
+            [year for year in range(N_years_PR)],
+            mean[1, :] - std[1, :],
+            mean[1, :] + std[1, :],
+            alpha=0.7,
+            color="tab:orange",
+            label=r"$\mu_{PR06} \pm \frac{\sigma_{PR06}}{2}$",
+        )
+
+        #### - PR12 - ####
+        # Individuals models
+        if display_single_models:
+            plt.plot(
+                [year for year in range(N_years_PR)],
+                Projections[key][2, :, :],
+                alpha=0.6,
+                color="tab:red",
+            )
+        # ensemble mean
+        plt.plot(
+            [year for year in range(N_years_PR)],
+            mean[2, :],
+            color="tab:red",
+            label=r"$\mu_{PR12}$",
+            linewidth=4,
+        )
+        # shadow std
+        plt.fill_between(
+            [year for year in range(N_years_PR)],
+            mean[2, :] - std[2, :],
+            mean[2, :] + std[2, :],
+            alpha=0.7,
+            color="tab:red",
+            label=r"$\mu_{PR12} \pm \frac{\sigma_{PR12}}{2}$",
+        )
+
+        plt.legend(fontsize=24)
+        plt.xticks(fontsize=24)
+        plt.yticks(fontsize=24)
+        plt.ylabel(y_label, size=29)
+        plt.xlabel("Year", size=29)
+        plt.grid()
+        if save:
+            plt.savefig(save_dir + "PR_MutliMod_" + str(key) + ".png")
+            plt.clf()
+        else:
+            plt.show()
+
+
 def subplot_TSIMAL_SIGUS_ENS(data1, data2, data3, N_mod, extra_label):
     figure = plt.figure(figsize=(16, 10))
     gs = gridspec.GridSpec(2, 2, wspace=0.25, hspace=0.3, left=0.1, right=0.98)
@@ -782,7 +931,7 @@ time_range_pr = np.arange(
 if __name__ == "__main__":
     ######################################## Control Simulations Analysis #########################################
     ##### Plot of the ensemble simulations with daily resolution #####
-    plot_all_mod(data=hi, data_name="hi", N_mod=N_mod_CTL, extra_label="CTL")
+    """plot_all_mod(data=hi, data_name="hi", N_mod=N_mod_CTL, extra_label="CTL")
     plot_all_mod(data=Tsu, data_name="Tsu", N_mod=N_mod_CTL, extra_label="CTL")
     plot_all_mod(data=hs, data_name="hs", N_mod=N_mod_CTL, extra_label="CTL")
     subplot_all_mod(
@@ -908,4 +1057,6 @@ if __name__ == "__main__":
         data3=hsmax[:, :, 2],
         N_mod=N_mod_PR,
         extra_label="PR12",
-    )
+    )"""
+    ##### Plot of the multi-model grouped by projection scenario ######
+    summarized_projection(display_single_models=False, save=True)
