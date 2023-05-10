@@ -88,9 +88,8 @@ Tsumin_pr = PR["Tsumin"]
 
 def mean_all_mod(data):
     """Computes the mean of all models of a given variable for each member of the interval N (could be 12 month or 365 days) and returns it as a list"""
-    #transform the 0 in Nan
-    data = np.where(data==0, np.nan, data)
     return np.mean(ma.masked_invalid(data),axis = 1)
+
 
 def month_mean(data):
     """Given the array of a daily variable for one year returns the means for every month
@@ -550,8 +549,36 @@ def plot_all_mod(data, data_name, N_mod, extra_label):
         time_range = time_range_pr
         Nbre = N_years_PR
         label_x = "Year"
-    for model in range(N_mod):
-        plt.plot(time_range, data[:, model], linewidth=1 * lab_size_fact_mod)
+    
+   
+    ## - Mean and std - ##
+    mod_mean = mean_all_mod(data=data)
+    mod_std = np.std(data, axis=1)
+    ####### - Plots - ######
+
+    ##- Individuals models - ##
+    plt.plot(time_range, data, alpha = 0.25,linewidth=1 * lab_size_fact_mod)
+
+    ## - Mean - ##
+    plt.plot(
+        time_range,
+        mod_mean,
+        linewidth=4 * lab_size_fact,
+        color="tab:blue",
+        label=r"Models Mean",
+    )
+
+    ## - Std - ##
+    plt.fill_between(
+        time_range,
+        mod_mean - mod_std,
+        mod_mean + mod_std,
+        alpha = 0.5,
+        color="tab:blue",
+        label=r"Models std",
+    )
+
+    ## - MU71 - ##
     if data_name == "hi":
         plt.plot(
             time_range_mu,
@@ -568,15 +595,9 @@ def plot_all_mod(data, data_name, N_mod, extra_label):
             linewidth=4 * lab_size_fact,
             color="tab:green",
         )
-    mod_mean = mean_all_mod(data=data)
-    # print(mod_mean)
-    plt.plot(
-        time_range,
-        mod_mean,
-        linewidth=4 * lab_size_fact,
-        color="tab:blue",
-        label=r"Models Mean",
-    )
+ 
+
+
     N_mod_str = str(N_mod)
     plt.title(
         r"Comparison between ensemble members"
@@ -589,33 +610,18 @@ def plot_all_mod(data, data_name, N_mod, extra_label):
         size=24 * lab_size_fact,
     )
     plt.xlabel(label_x, size=25 * lab_size_fact)
-    if (
-        data_name == "hi"
-        or data_name == "hi_mean_month"
-        or data_name == "himax"
-        or data_name == "himean"
-        or data_name == "himin"
-    ):
+    if data_name[0] == "h":
         unit = "[m]"
-    if data_name == "Tsu" or data_name == "Tsu_mean_month" or data_name == "Tsumin":
+    if data_name[0] == "T":
         unit = "[°K]"
-    if data_name == "hs" or data_name == "hs_mean_month" or data_name == "hsmax":
-        unit = "[m]"
     plt.ylabel(data_name + unit, size=25 * lab_size_fact)
     plt.xticks(fontsize=20 * lab_size_fact)
     plt.yticks(fontsize=20 * lab_size_fact)
     plt.grid()
     plt.legend(fontsize=20 * lab_size_fact)
-    plt.savefig(save_dir + data_name + "_all_mod_" + extra_label + ".png", dpi=300)
-    # plt.show()
-    plt.clf()
-    plt.legend(fontsize=20)
-    #plt.savefig(save_dir + data_name + "_all_mod000.png", dpi=300)
+    #plt.savefig(save_dir + data_name + "_all_mod_" + extra_label + ".png", dpi=300)
     plt.show()
     #plt.clf()
-
-
-
 
 def subplot_all_mod(data1, data2, data3, data_name, N_mod, extra_label):
     figure = plt.figure(figsize=(16, 10))
@@ -693,7 +699,6 @@ def subplot_all_mod(data1, data2, data3, data_name, N_mod, extra_label):
 
     plt.savefig(save_dir + "subplot_all_mod_" + extra_label + ".png", dpi=300)
     plt.clf()
-
 
 def summarized_projection(display_single_models=False, save=False):
     """
@@ -843,8 +848,6 @@ def summarized_projection(display_single_models=False, save=False):
         else:
             plt.show()
 
-summarized_projection(display_single_models=False, save = False)
-
 def subplot_TSIMAL_SIGUS_ENS(data1, data2, data3, N_mod, extra_label):
     figure = plt.figure(figsize=(16, 10))
     gs = gridspec.GridSpec(2, 2, wspace=0.25, hspace=0.3, left=0.1, right=0.98)
@@ -938,7 +941,7 @@ time_range_pr = np.arange(
     Day_0, N_years_PR, 1
 )  # time range for the PR simulations in month. Used for plot
 
-
+plot_all_mod(data=hi_ctl, data_name="hi", N_mod=N_mod_CTL, extra_label="CTL")
 
 """ if __name__ == "__main__":
     ######################################## Control Simulations Analysis #########################################
