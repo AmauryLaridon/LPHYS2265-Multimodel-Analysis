@@ -686,7 +686,7 @@ def plot_all_mod(data, data_name, N_mod, extra_label, display_single_models = Fa
             color="tab:green",
         )
  
-
+    ###### - plots parameters - ######
 
     fig.suptitle(
         r"Comparison between ensemble members"
@@ -719,8 +719,10 @@ def plot_all_mod(data, data_name, N_mod, extra_label, display_single_models = Fa
     axs[1].set_yticks(fontsize=20 * lab_size_fact) """
     axs[2].grid()
     axs[2].legend(fontsize=10 * lab_size_fact)
+    axs[2].set_ylim(-2,0.75)
 
     axs[3].set_xlabel(label_x)
+    axs[3].set_ylim(-2,0.75)
     axs[3].set_ylabel("Variation [cm/days]")
     """ axs[1].set_xticks(fontsize=20 * lab_size_fact)
     axs[1].set_yticks(fontsize=20 * lab_size_fact) """
