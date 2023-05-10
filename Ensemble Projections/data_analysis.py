@@ -595,7 +595,7 @@ def plot_all_mod(data, data_name, N_mod, extra_label, display_single_models = Fa
         np.mean(np.delete(data,model_index_without_snow,axis = 1),axis = 1) + np.std(np.delete(data,model_index_without_snow,axis = 1),axis = 1),
         alpha = 0.5,
         color="tab:blue",
-        label=r"std",
+        label=f"std, mean std = {round(np.mean(np.std(np.delete(data,model_index_without_snow,axis = 1),axis = 1)),2)}m",
     )
 
     # Without snow
@@ -605,7 +605,7 @@ def plot_all_mod(data, data_name, N_mod, extra_label, display_single_models = Fa
         np.mean(np.take(data,model_index_without_snow,axis = 1),axis = 1) + np.std(np.take(data,model_index_without_snow,axis = 1),axis = 1),
         alpha = 0.5,
         color="tab:red",
-        label=r"std",
+        label=f"std, mean std = {round(np.mean(np.std(np.take(data,model_index_without_snow,axis = 1),axis = 1)),2)}m",
     )
 
     #### - Right Subplots - ####
@@ -617,7 +617,7 @@ def plot_all_mod(data, data_name, N_mod, extra_label, display_single_models = Fa
 
 
     ## - Mean - ##
-    # With snow
+
     axs[1].plot(
         time_range,
         np.mean(data,axis = 1),
@@ -628,14 +628,13 @@ def plot_all_mod(data, data_name, N_mod, extra_label, display_single_models = Fa
 
     ## - Std - ##
 
-    # With snow
     axs[1].fill_between(
         time_range,
         np.mean(data,axis = 1) - np.std(data,axis = 1),
         np.mean(data,axis = 1) + np.std(data,axis = 1),
         alpha = 0.5,
         color="tab:blue",
-        label=r"std",
+        label=f"std, mean std = {round(np.mean(np.std(data,axis = 1)),2)} m",
     )
 
     ## - MU71 - ##
