@@ -557,7 +557,17 @@ def plot_all_mod(data, data_name, N_mod, extra_label, display_single_models = Fa
     
     ####### - Plots - ######
 
-    fig,axs = plt.subplots(nrows = 1,ncols = 2)
+    fig = plt.figure()
+    """ ax1 = plt.subplot(2,2,1)
+    ax2 = plt.subplot(2,2,2)
+    ax3 = plt.subplot(2,1,2)
+    axs = [ax1, ax2, ax3] """
+
+    ax1 = plt.subplot2grid((4, 4), (0, 0), rowspan = 3,colspan = 2)
+    ax2 = plt.subplot2grid((4, 4), (0, 2), rowspan = 3,colspan = 2)
+    ax3 = plt.subplot2grid((4, 4), (3, 0), colspan = 2)
+    ax4 = plt.subplot2grid((4, 4), (3, 2), colspan = 2)
+    axs = [ax1, ax2, ax3,ax4]
 
     ##### - Left subplots - ####
     ##- Individuals models - ##
@@ -637,6 +647,13 @@ def plot_all_mod(data, data_name, N_mod, extra_label, display_single_models = Fa
         label=f"std, mean std = {round(np.mean(np.std(data,axis = 1)),2)} m",
     )
 
+    ## - Variation - ##
+    axs[2].plot(time_range,np.gradient(np.mean(np.take(data,model_index_without_snow,axis = 1),axis = 1))*100, color = "tab:red", label = "w/o snow") #Plot the day variation from a day to an other
+    axs[2].plot(time_range,np.gradient(np.mean(np.delete(data,model_index_without_snow,axis = 1),axis = 1))*100, color = "tab:blue", label = "with snow") #Plot the day variation from a day to an other
+
+    axs[3].plot(time_range,np.gradient(np.mean(data,axis = 1))*100, label = "total mean") #Plot the day variation from a day to an other
+
+
     ## - MU71 - ##
     if data_name == "hi":
         axs[0].plot(
@@ -681,19 +698,34 @@ def plot_all_mod(data, data_name, N_mod, extra_label, display_single_models = Fa
         + " simulation",
         size=24 * lab_size_fact,
     )
-    axs[0].set_xlabel(label_x, size=25 * lab_size_fact)
-    axs[0].set_ylabel(data_name + unit, size=25 * lab_size_fact)
+    #axs[0].set_xlabel(label_x, size=25 * lab_size_fact)
+    axs[0].set_xlabel(label_x)
+    axs[0].set_ylabel(data_name + unit)
     """ axs[0].set_xticks(time_range,fontsize=20 * lab_size_fact)
     axs[0].set_yticks(fontsize=20 * lab_size_fact) """
     axs[0].grid()
     axs[0].legend(fontsize=10 * lab_size_fact)
 
-    axs[1].set_xlabel(label_x, size=25 * lab_size_fact)
-    axs[1].set_ylabel(data_name + unit, size=25 * lab_size_fact)
+    axs[1].set_xlabel(label_x)
+    axs[1].set_ylabel(data_name + unit)
     """ axs[1].set_xticks(fontsize=20 * lab_size_fact)
     axs[1].set_yticks(fontsize=20 * lab_size_fact) """
     axs[1].grid()
     axs[1].legend(fontsize=10 * lab_size_fact)
+
+    axs[2].set_xlabel(label_x)
+    axs[2].set_ylabel("Variation [cm/days]")
+    """ axs[1].set_xticks(fontsize=20 * lab_size_fact)
+    axs[1].set_yticks(fontsize=20 * lab_size_fact) """
+    axs[2].grid()
+    axs[2].legend(fontsize=10 * lab_size_fact)
+
+    axs[3].set_xlabel(label_x)
+    axs[3].set_ylabel("Variation [cm/days]")
+    """ axs[1].set_xticks(fontsize=20 * lab_size_fact)
+    axs[1].set_yticks(fontsize=20 * lab_size_fact) """
+    axs[3].grid()
+    axs[3].legend(fontsize=10 * lab_size_fact)
     plt.show()
 
 def subplot_all_mod(data1, data2, data3, data_name, N_mod, extra_label):
