@@ -526,7 +526,7 @@ def comp_SIGUS_ENS():
 ##### Display #####
 
 
-def plot_all_mod(data, data_name, N_mod, extra_label):
+def plot_all_mod(data, data_name, N_mod, extra_label, display_single_models = False):
     figure = plt.figure(figsize=(16, 10))
 
     if data_name == "hi_mean_month":
@@ -550,32 +550,53 @@ def plot_all_mod(data, data_name, N_mod, extra_label):
         Nbre = N_years_PR
         label_x = "Year"
     
-   
-    ## - Mean and std - ##
-    mod_mean = mean_all_mod(data=data)
-    mod_std = np.std(data, axis=1)
     ####### - Plots - ######
-
     ##- Individuals models - ##
-    plt.plot(time_range, data, alpha = 0.25,linewidth=1 * lab_size_fact_mod)
+    if display_single_models:
+        # without snow
+        plt.plot(time_range, np.take(data,model_index_without_snow,axis = 1), alpha = 0.6,linewidth=1 * lab_size_fact_mod, color = "tab:red")
+        #with snow
+        plt.plot(time_range, np.delete(data,model_index_without_snow,axis = 1), alpha = 0.6,linewidth=1 * lab_size_fact_mod, color = "tab:blue")
+
 
     ## - Mean - ##
+    # With snow
     plt.plot(
         time_range,
-        mod_mean,
+        np.mean(np.delete(data,model_index_without_snow,axis = 1),axis = 1),
         linewidth=4 * lab_size_fact,
         color="tab:blue",
-        label=r"Models Mean",
+        label=r"Snow Models Mean ",
+    )
+    # Without snow
+    plt.plot(
+        time_range,
+        np.mean(np.take(data,model_index_without_snow,axis = 1),axis = 1),
+        linewidth=4 * lab_size_fact,
+        color="tab:red",
+        label=r"Snow-free Models Mean ",
     )
 
     ## - Std - ##
+
+    # With snow
     plt.fill_between(
         time_range,
-        mod_mean - mod_std,
-        mod_mean + mod_std,
+        np.mean(np.delete(data,model_index_without_snow,axis = 1),axis = 1) - np.std(np.delete(data,model_index_without_snow,axis = 1),axis = 1),
+        np.mean(np.delete(data,model_index_without_snow,axis = 1),axis = 1) + np.std(np.delete(data,model_index_without_snow,axis = 1),axis = 1),
         alpha = 0.5,
         color="tab:blue",
-        label=r"Models std",
+        label=r"std",
+    )
+
+    # Without snow
+    plt.fill_between(
+        time_range,
+        np.mean(np.take(data,model_index_without_snow,axis = 1),axis = 1) - np.std(np.take(data,model_index_without_snow,axis = 1),axis = 1),
+        np.mean(np.take(data,model_index_without_snow,axis = 1),axis = 1) + np.std(np.take(data,model_index_without_snow,axis = 1),axis = 1),
+        alpha = 0.5,
+        color="tab:red",
+        label=r"std",
     )
 
     ## - MU71 - ##
@@ -941,7 +962,7 @@ time_range_pr = np.arange(
     Day_0, N_years_PR, 1
 )  # time range for the PR simulations in month. Used for plot
 
-plot_all_mod(data=hi_ctl, data_name="hi", N_mod=N_mod_CTL, extra_label="CTL")
+plot_all_mod(data=hi_ctl, data_name="hi", N_mod=N_mod_CTL, extra_label="CTL", display_single_models = True)
 
 """ if __name__ == "__main__":
     ######################################## Control Simulations Analysis #########################################
