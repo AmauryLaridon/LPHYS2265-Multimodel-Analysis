@@ -83,7 +83,7 @@ Tsumin = PR["Tsumin"]
 
 def mean_all_mod(data):
     # transform the 0 in Nan
-    data = np.where(data == 0, np.nan, data)
+    # data = np.where(data == 0, np.nan, data)
     return np.mean(ma.masked_invalid(data), axis=1)
 
 
@@ -522,7 +522,7 @@ def comp_SIGUS_ENS():
 ##### Display #####
 
 
-def plot_all_mod(data, data_name, N_mod, extra_label, snow_implt_dist=False):
+def plot_all_mod(data, data_name, N_mod, extra_label):
     figure = plt.figure(figsize=(16, 10))
     if data_name == "hi_mean_month":
         lab_size_fact = 0.5
@@ -545,18 +545,7 @@ def plot_all_mod(data, data_name, N_mod, extra_label, snow_implt_dist=False):
         Nbre = N_years_PR
         label_x = "Year"
     for model in range(N_mod):
-        if snow_implt_dist == True:
-            color_mod = np.fill("cyan", N_mod)
-            for i in model_index_without_snow:
-                color_mod[i] = "red"
-            plt.plot(
-                time_range,
-                data[:, model],
-                linewidth=1 * lab_size_fact_mod,
-                color=color_mod[model],
-            )
-        else:
-            plt.plot(time_range, data[:, model], linewidth=1 * lab_size_fact_mod)
+        plt.plot(time_range, data[:, model], linewidth=1 * lab_size_fact_mod)
     if data_name == "hi":
         plt.plot(
             time_range_mu,
@@ -583,6 +572,187 @@ def plot_all_mod(data, data_name, N_mod, extra_label, snow_implt_dist=False):
         label=r"Models Mean",
     )
     N_mod_str = str(N_mod)
+    plt.title(
+        r"Comparison between ensemble members"
+        + r"($N_{mod}$ ="
+        + N_mod_str
+        + ")"
+        + r" and their averages "
+        + extra_label
+        + " simulation",
+        size=24 * lab_size_fact,
+    )
+    plt.xlabel(label_x, size=25 * lab_size_fact)
+    if (
+        data_name == "hi"
+        or data_name == "hi_mean_month"
+        or data_name == "himax"
+        or data_name == "himean"
+        or data_name == "himin"
+    ):
+        unit = "[m]"
+    if data_name == "Tsu" or data_name == "Tsu_mean_month" or data_name == "Tsumin":
+        unit = "[°K]"
+    if data_name == "hs" or data_name == "hs_mean_month" or data_name == "hsmax":
+        unit = "[m]"
+    plt.ylabel(data_name + unit, size=25 * lab_size_fact)
+    plt.xticks(fontsize=20 * lab_size_fact)
+    plt.yticks(fontsize=20 * lab_size_fact)
+    plt.grid()
+    plt.legend(fontsize=20 * lab_size_fact)
+    plt.savefig(save_dir + data_name + "_all_mod_" + extra_label + ".png", dpi=300)
+    # plt.show()
+    plt.clf()
+
+
+def plot_all_mod2(
+    data, data_name, N_mod, extra_label, display_single_models=False, model_mean=False
+):
+    """Almost same plotting function as plot_all_mod() but with a distinction between the models that have snow implemented and those
+    who haven't."""
+
+    figure = plt.figure(figsize=(16, 10))
+
+    if data_name == "hi_mean_month":
+        lab_size_fact = 0.5
+        lab_size_fact_mod = 0.75
+    else:
+        lab_size_fact = 1
+        lab_size_fact_mod = 1
+    if np.shape(data)[0] == 365:
+        time_range = time_range_ctl
+        time_range_mu = time_range_MU71
+        Nbre = N_days_CTL
+        label_x = "Days"
+    if np.shape(data)[0] == 12:
+        time_range = time_range_ctl_month
+        time_range_mu = time_range_MU71_month
+        Nbre = N_month_CTL
+        label_x = "Month"
+    elif np.shape(data)[0] == 100:
+        time_range = time_range_pr
+        Nbre = N_years_PR
+        label_x = "Year"
+    if data_name[0] == "h":
+        unit = "[m]"
+    if data_name[0] == "T":
+        unit = "[°K]"
+    N_mod_str = str(N_mod)
+
+    ####### - Plots - ######
+
+    ##- Individuals models - ##
+    if display_single_models:
+        # without snow
+        plt.plot(
+            time_range,
+            np.take(data, model_index_without_snow, axis=1),
+            alpha=0.6,
+            linewidth=1 * lab_size_fact_mod,
+            color="tab:red",
+        )
+        # with snow
+        plt.plot(
+            time_range,
+            np.delete(data, model_index_without_snow, axis=1),
+            alpha=0.6,
+            linewidth=1 * lab_size_fact_mod,
+            color="tab:orange",
+        )
+
+    ## - Mean - ##
+    # With snow
+    plt.plot(
+        time_range,
+        np.mean(np.delete(data, model_index_without_snow, axis=1), axis=1),
+        linewidth=4 * lab_size_fact,
+        color="tab:orange",
+        label=r"Snow Models Mean ",
+    )
+    # Without snow
+    plt.plot(
+        time_range,
+        np.mean(np.take(data, model_index_without_snow, axis=1), axis=1),
+        linewidth=4 * lab_size_fact,
+        color="tab:red",
+        label=r"Snow-free Models Mean ",
+    )
+
+    ## - Std - ##
+
+    # With snow
+    plt.fill_between(
+        time_range,
+        np.mean(np.delete(data, model_index_without_snow, axis=1), axis=1)
+        - np.std(np.delete(data, model_index_without_snow, axis=1), axis=1),
+        np.mean(np.delete(data, model_index_without_snow, axis=1), axis=1)
+        + np.std(np.delete(data, model_index_without_snow, axis=1), axis=1),
+        alpha=0.5,
+        color="tab:orange",
+        label=f"std, mean std = {round(np.mean(np.std(np.delete(data,model_index_without_snow,axis = 1),axis = 1)),2)}m",
+    )
+
+    # Without snow
+    plt.fill_between(
+        time_range,
+        np.mean(np.take(data, model_index_without_snow, axis=1), axis=1)
+        - np.std(np.take(data, model_index_without_snow, axis=1), axis=1),
+        np.mean(np.take(data, model_index_without_snow, axis=1), axis=1)
+        + np.std(np.take(data, model_index_without_snow, axis=1), axis=1),
+        alpha=0.5,
+        color="tab:red",
+        label=f"std, mean std = {round(np.mean(np.std(np.take(data,model_index_without_snow,axis = 1),axis = 1)),2)}m",
+    )
+
+    #### - Ensemble model Mean - ####
+    if model_mean:
+        ## - Mean - ##
+        plt.plot(
+            time_range,
+            np.mean(data, axis=1),
+            linewidth=4 * lab_size_fact,
+            color="tab:blue",
+            label=r"Models Mean ",
+        )
+
+        ## - Std - ##
+
+        plt.fill_between(
+            time_range,
+            np.mean(data, axis=1) - np.std(data, axis=1),
+            np.mean(data, axis=1) + np.std(data, axis=1),
+            alpha=0.5,
+            color="tab:blue",
+            label=f"std, mean std = {round(np.mean(np.std(data,axis = 1)),2)} m",
+        )
+
+    ## - MU71 - ##
+    if data_name == "hi":
+        plt.plot(
+            time_range_mu,
+            hi_MU71,
+            label=r"$h_{i_{MU71}}$",
+            linewidth=4 * lab_size_fact,
+            color="tab:green",
+        )
+    if data_name == "hi_mean_month":
+        plt.plot(
+            time_range_mu,
+            hi_MU71,
+            label=r"$h_{i_{MU71}}$",
+            linewidth=4 * lab_size_fact,
+            color="tab:green",
+        )
+        plt.plot(
+            time_range_mu,
+            hi_MU71,
+            label=r"$h_{i_{MU71}}$",
+            linewidth=4 * lab_size_fact,
+            color="tab:green",
+        )
+
+    ###### - plots parameters - ######
+
     plt.title(
         r"Comparison between ensemble members"
         + r"($N_{mod}$ ="
@@ -694,6 +864,12 @@ def subplot_all_mod(data1, data2, data3, data_name, N_mod, extra_label):
     plt.clf()
 
 
+def suplot_all_mod2(
+    data1, data2, data3, data_name, N_mod, extra_label, display_single_models=False
+):
+    break
+
+
 def summarized_projection(display_single_models=False, save=False):
     """
     Plots all relevant informations about projection.
@@ -736,6 +912,7 @@ def summarized_projection(display_single_models=False, save=False):
     }
 
     for key in Projections.keys():
+        figure = plt.figure(figsize=(16, 10))
         mean = np.mean(Projections[key], axis=2)
         std = np.std(Projections[key], axis=2) / 2
         plt.title(f"Multi-model Analysis for PR Scenarios : {key}", size=28)
@@ -941,7 +1118,7 @@ time_range_pr = np.arange(
 if __name__ == "__main__":
     ######################################## Control Simulations Analysis #########################################
     ##### Plot of the ensemble simulations with daily resolution #####
-    plot_all_mod(data=hi, data_name="hi", N_mod=N_mod_CTL, extra_label="CTL")
+    """plot_all_mod(data=hi, data_name="hi", N_mod=N_mod_CTL, extra_label="CTL")
     plot_all_mod(data=Tsu, data_name="Tsu", N_mod=N_mod_CTL, extra_label="CTL")
     plot_all_mod(data=hs, data_name="hs", N_mod=N_mod_CTL, extra_label="CTL")
     subplot_all_mod(
@@ -987,6 +1164,10 @@ if __name__ == "__main__":
         N_mod=N_mod_CTL,
         extra_label="CTL",
     )
+    ##### Plot with distinction betwsen models with and without snow #####
+    plot_all_mod(data=hi, data_name="hi", N_mod=N_mod_CTL, extra_label="CTL")
+    plot_all_mod(data=Tsu, data_name="Tsu", N_mod=N_mod_CTL, extra_label="CTL")
+    plot_all_mod(data=hs, data_name="hs", N_mod=N_mod_CTL, extra_label="CTL")
 
     ########## Verification ###########
     comp_ENS_MU71()
@@ -1068,5 +1249,16 @@ if __name__ == "__main__":
         N_mod=N_mod_PR,
         extra_label="PR12",
     )
-    ##### Plot of the multi-model grouped by projection scenario ######
-    summarized_projection(display_single_models=False, save=True)
+    """
+    ########## FINAL FIGURES ##########
+    ##### Plot of the multi-model grouped by PR scenario ######
+    # summarized_projection(display_single_models=False, save=True)
+    ##### Plot of the multi-model grouped for CTL with DS ######
+    plot_all_mod2(
+        data=hi,
+        data_name="hi",
+        N_mod=N_mod_CTL,
+        extra_label="CTL",
+        display_single_models=False,
+        snow_implt_dist=True,
+    )
