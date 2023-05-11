@@ -83,7 +83,7 @@ Tsumin = PR["Tsumin"]
 
 def mean_all_mod(data):
     # transform the 0 in Nan
-    data = np.where(data == 0, np.nan, data)
+    # data = np.where(data == 0, np.nan, data)
     return np.mean(ma.masked_invalid(data), axis=1)
 
 
@@ -522,9 +522,10 @@ def comp_SIGUS_ENS():
 ##### Display #####
 
 
-def plot_all_mod(data, data_name, N_mod, extra_label):
+def plot_all_mod(
+    data, data_name, N_mod, extra_label, snow_implt_dist=False, subplot=False
+):
     figure = plt.figure(figsize=(16, 10))
-
     if data_name == "hi_mean_month":
         lab_size_fact = 0.5
         lab_size_fact_mod = 0.75
@@ -546,7 +547,20 @@ def plot_all_mod(data, data_name, N_mod, extra_label):
         Nbre = N_years_PR
         label_x = "Year"
     for model in range(N_mod):
-        plt.plot(time_range, data[:, model], linewidth=1 * lab_size_fact_mod)
+        if snow_implt_dist == True:
+            color_mod = np.full(N_mod, "tab:cyan")
+            legend_mod = np.full(N_mod, "Models with snow")
+            for i in model_index_without_snow:
+                color_mod[i] = "red"
+                legend_mod[i] = "Models without snow"
+            plt.plot(
+                time_range,
+                data[:, model],
+                linewidth=1 * lab_size_fact_mod,
+                color=color_mod[model],
+            )
+        else:
+            plt.plot(time_range, data[:, model], linewidth=1 * lab_size_fact_mod)
     if data_name == "hi":
         plt.plot(
             time_range_mu,
@@ -601,7 +615,13 @@ def plot_all_mod(data, data_name, N_mod, extra_label):
     plt.yticks(fontsize=20 * lab_size_fact)
     plt.grid()
     plt.legend(fontsize=20 * lab_size_fact)
-    plt.savefig(save_dir + data_name + "_all_mod_" + extra_label + ".png", dpi=300)
+    if snow_implt_dist == True:
+        add_text = "_DS"
+    else:
+        add_text = ""
+    plt.savefig(
+        save_dir + data_name + "_all_mod_" + extra_label + add_text + ".png", dpi=300
+    )
     # plt.show()
     plt.clf()
 
@@ -726,6 +746,7 @@ def summarized_projection(display_single_models=False, save=False):
     }
 
     for key in Projections.keys():
+        figure = plt.figure(figsize=(16, 10))
         mean = np.mean(Projections[key], axis=2)
         std = np.std(Projections[key], axis=2) / 2
         plt.title(f"Multi-model Analysis for PR Scenarios : {key}", size=28)
@@ -944,12 +965,14 @@ if __name__ == "__main__":
     )
 
     ### Computation of the month mean of the variables ###
+    """
     # hi #
     hi_mean_month = np.zeros((12, N_mod_CTL))
     for model in range(N_mod_CTL):
         hi_mean_month_mod = month_mean(hi[:, model])
         hi_mean_month[:, model] = hi_mean_month_mod
     # print(hi_mean_month)
+    """
     # hs #
     hs_mean_month = np.zeros((12, N_mod_CTL))
     for model in range(N_mod_CTL):
@@ -962,13 +985,14 @@ if __name__ == "__main__":
         Tsu_mean_month_mod = month_mean(Tsu[:, model])
         Tsu_mean_month[:, model] = Tsu_mean_month_mod
     # print(Tsu_mean_month)
-    ### Plot of the ensemble simulations with month resolution ###
+    """  ### Plot of the ensemble simulations with month resolution ###
     plot_all_mod(
         data=hi_mean_month,
         data_name="hi_mean_month",
         N_mod=N_mod_CTL,
         extra_label="CTL",
     )
+    """
     subplot_all_mod(
         data1=hi_mean_month,
         data2=Tsu,
@@ -976,10 +1000,32 @@ if __name__ == "__main__":
         data_name=["hi_mean_month,Tsu,hs"],
         N_mod=N_mod_CTL,
         extra_label="CTL",
+    )"""
+    ##### Plot with distinction betwsen models with and without snow #####
+    plot_all_mod(
+        data=hi,
+        data_name="hi",
+        N_mod=N_mod_CTL,
+        extra_label="CTL",
+        snow_implt_dist=True,
+    )
+    plot_all_mod(
+        data=Tsu,
+        data_name="Tsu",
+        N_mod=N_mod_CTL,
+        extra_label="CTL",
+        snow_implt_dist=True,
+    )
+    plot_all_mod(
+        data=hs,
+        data_name="hs",
+        N_mod=N_mod_CTL,
+        extra_label="CTL",
+        snow_implt_dist=True,
     )
 
     ########## Verification ###########
-    comp_ENS_MU71()
+    """comp_ENS_MU71()
     comp_TSIMAL_MU71()
     comp_SIGUS_MU71()
     comp_TSIMAL_ENS()
@@ -1059,4 +1105,4 @@ if __name__ == "__main__":
         extra_label="PR12",
     )"""
     ##### Plot of the multi-model grouped by projection scenario ######
-    summarized_projection(display_single_models=False, save=True)
+    # summarized_projection(display_single_models=False, save=True)
