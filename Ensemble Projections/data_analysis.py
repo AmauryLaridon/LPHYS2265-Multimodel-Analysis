@@ -17,7 +17,7 @@ import matplotlib.gridspec as gridspec
 from sklearn.metrics import mean_squared_error
 
 ################################################### Parameters #############################################################
-exec_final = True
+exec_final = False
 exec_all = False
 ################################ Script Parameters #######################################
 N_mod_CTL = 15  # number of models at disposal for the CTL run [Adim]
@@ -1892,6 +1892,244 @@ def subplot_TSIMAL_SIGUS_ENS(data1, data2, data3, N_mod, extra_label):
     plt.clf()
 
 
+def box_plots(separate_snow=False):
+    himax_03 = himax[-1, :, 0]
+    himin_03 = himin[-1, :, 0]
+    himean_03 = himean[-1, :, 0]
+    Tsu_03 = Tsumin[-1, :, 0]
+
+    himax_06 = himax[-1, :, 1]
+    himin_06 = himin[-1, :, 1]
+    himean_06 = himean[-1, :, 1]
+    Tsu_06 = Tsumin[-1, :, 1]
+
+    himax_12 = himax[-1, :, 2]
+    himin_12 = himin[-1, :, 2]
+    himean_12 = himean[-1, :, 2]
+    Tsu_12 = Tsumin[-1, :, 2]
+
+    # plt.figure()
+    fig, axs = plt.subplots(ncols=2, nrows=2)
+    transparancy = 0.5
+    ###############
+    if separate_snow:
+        bplot = axs[0, 0].boxplot(
+            [
+                np.take(himax_03, model_index_without_snow),
+                np.take(himax_06, model_index_without_snow),
+                np.take(himax_12, model_index_without_snow),
+            ],
+            vert=False,  # horizontal box alignment
+            patch_artist=True,  # fill with color
+            labels=["PR03", "PR06", "PR12"],
+        )  # will be used to label x-ticks
+        colors = ["red", "red", "red"]
+        for patch, color in zip(bplot["boxes"], colors):
+            patch.set_facecolor(color)
+            patch.set_alpha(transparancy)
+        for median in bplot["medians"]:
+            median.set_color("red")
+
+        bplot = axs[0, 0].boxplot(
+            [
+                np.delete(himax_03, model_index_without_snow),
+                np.delete(himax_06, model_index_without_snow),
+                np.delete(himax_12, model_index_without_snow),
+            ],
+            vert=False,  # horizontal box alignment
+            patch_artist=True,  # fill with color
+            labels=["PR03", "PR06", "PR12"],
+        )  # will be used to label x-ticks
+        colors = ["blue", "blue", "blue"]
+        for patch, color in zip(bplot["boxes"], colors):
+            patch.set_facecolor(color)
+            patch.set_alpha(transparancy)
+        for median in bplot["medians"]:
+            median.set_color("blue")
+
+    else:
+        bplot = axs[0, 0].boxplot(
+            [himax_03, himax_06, himax_12],
+            vert=False,  # horizontal box alignment
+            patch_artist=True,  # fill with color
+            labels=["PR03", "PR06", "PR12"],
+        )  # will be used to label x-ticks
+        colors = ["tab:blue", "tab:orange", "tab:red"]
+        for patch, color in zip(bplot["boxes"], colors):
+            patch.set_facecolor(color)
+        for median in bplot["medians"]:
+            median.set_color("black")
+
+    #################
+    if separate_snow:
+        bplot = axs[0, 1].boxplot(
+            [
+                np.take(himin_03, model_index_without_snow),
+                np.take(himin_06, model_index_without_snow),
+                np.take(himin_12, model_index_without_snow),
+            ],
+            vert=False,  # horizontal box alignment
+            patch_artist=True,  # fill with color
+            labels=["PR03", "PR06", "PR12"],
+        )  # will be used to label x-ticks
+        colors = ["tab:blue", "tab:orange", "tab:red"]
+        for patch, color in zip(bplot["boxes"], colors):
+            patch.set_facecolor(color)
+            patch.set_alpha(transparancy)
+        for median in bplot["medians"]:
+            median.set_color("red")
+
+        bplot = axs[0, 1].boxplot(
+            [
+                np.delete(himin_03, model_index_without_snow),
+                np.delete(himin_06, model_index_without_snow),
+                np.delete(himin_12, model_index_without_snow),
+            ],
+            vert=False,  # horizontal box alignment
+            patch_artist=True,  # fill with color
+            labels=["PR03", "PR06", "PR12"],
+        )  # will be used to label x-ticks
+        colors = ["tab:blue", "tab:orange", "tab:red"]
+        for patch, color in zip(bplot["boxes"], colors):
+            patch.set_facecolor(color)
+            patch.set_alpha(transparancy)
+        for median in bplot["medians"]:
+            median.set_color("blue")
+
+    else:
+        bplot = axs[0, 1].boxplot(
+            [himin_03, himin_06, himin_12],
+            vert=False,  # horizontal box alignment
+            patch_artist=True,  # fill with color
+            labels=["PR03", "PR06", "PR12"],
+        )  # will be used to label x-ticks
+        colors = ["tab:blue", "tab:orange", "tab:red"]
+        for patch, color in zip(bplot["boxes"], colors):
+            patch.set_facecolor(color)
+        for median in bplot["medians"]:
+            median.set_color("black")
+
+    ##################
+    if separate_snow:
+        bplot = axs[1, 0].boxplot(
+            [
+                np.take(himean_03, model_index_without_snow),
+                np.take(himean_06, model_index_without_snow),
+                np.take(himean_12, model_index_without_snow),
+            ],
+            vert=False,  # horizontal box alignment
+            patch_artist=True,  # fill with color
+            labels=["PR03", "PR06", "PR12"],
+        )  # will be used to label x-ticks
+        colors = ["red", "red", "red"]
+        for patch, color in zip(bplot["boxes"], colors):
+            patch.set_facecolor(color)
+            patch.set_alpha(transparancy)
+        for median in bplot["medians"]:
+            median.set_color("red")
+
+        bplot = axs[1, 0].boxplot(
+            [
+                np.delete(himean_03, model_index_without_snow),
+                np.delete(himean_06, model_index_without_snow),
+                np.delete(himean_12, model_index_without_snow),
+            ],
+            vert=False,  # horizontal box alignment
+            patch_artist=True,  # fill with color
+            labels=["PR03", "PR06", "PR12"],
+        )  # will be used to label x-ticks
+        colors = ["blue", "blue", "blue"]
+        for patch, color in zip(bplot["boxes"], colors):
+            patch.set_facecolor(color)
+            patch.set_alpha(transparancy)
+        for median in bplot["medians"]:
+            median.set_color("blue")
+
+    else:
+        bplot = axs[1, 0].boxplot(
+            [himean_03, himean_06, himean_12],
+            vert=False,  # horizontal box alignment
+            patch_artist=True,  # fill with color
+            labels=["PR03", "PR06", "PR12"],
+        )  # will be used to label x-ticks
+        colors = ["tab:blue", "tab:orange", "tab:red"]
+        for patch, color in zip(bplot["boxes"], colors):
+            patch.set_facecolor(color)
+        titles = [
+            "Maximum ice thickness",
+            "Minimum ice thickness",
+            "Mean ice thickness",
+        ]
+
+        for median in bplot["medians"]:
+            median.set_color("black")
+
+    ##################
+    if separate_snow:
+        bplot = axs[1, 1].boxplot(
+            [
+                np.take(Tsu_03, model_index_without_snow),
+                np.take(Tsu_06, model_index_without_snow),
+                np.take(Tsu_12, model_index_without_snow),
+            ],
+            vert=False,  # horizontal box alignment
+            patch_artist=True,  # fill with color
+            labels=["PR03", "PR06", "PR12"],
+        )  # will be used to label x-ticks
+        colors = ["red", "red", "red"]
+        for patch, color in zip(bplot["boxes"], colors):
+            patch.set_facecolor(color)
+            patch.set_alpha(transparancy)
+        for median in bplot["medians"]:
+            median.set_color("red")
+
+        bplot = axs[1, 1].boxplot(
+            [
+                np.delete(Tsu_03, model_index_without_snow),
+                np.delete(Tsu_06, model_index_without_snow),
+                np.delete(Tsu_12, model_index_without_snow),
+            ],
+            vert=False,  # horizontal box alignment
+            patch_artist=True,  # fill with color
+            labels=["PR03", "PR06", "PR12"],
+        )  # will be used to label x-ticks
+        colors = ["blue", "blue", "blue"]
+        for patch, color in zip(bplot["boxes"], colors):
+            patch.set_facecolor(color)
+            patch.set_alpha(transparancy)
+        for median in bplot["medians"]:
+            median.set_color("blue")
+
+    else:
+        bplot = axs[1, 1].boxplot(
+            [Tsu_03, Tsu_06, Tsu_12],
+            vert=False,  # horizontal box alignment
+            patch_artist=True,  # fill with color
+            labels=["PR03", "PR06", "PR12"],
+        )  # will be used to label x-ticks
+        colors = ["tab:blue", "tab:orange", "tab:red"]
+        for patch, color in zip(bplot["boxes"], colors):
+            patch.set_facecolor(color)
+
+    titles = [
+        "Maximum ice thickness",
+        "Minimum ice thickness",
+        "Mean ice thickness",
+        "Minimum surface Temperature",
+    ]
+    units = ["[m]", "[m]", "[m]", "[°K]"]
+    for ax, title, unit in zip(axs.flat, titles, units):
+        ax.grid()
+        ax.set_xlabel(unit)
+        ax.title.set_text(title)
+    for median in bplot["medians"]:
+        median.set_color("black")
+
+    fig.suptitle("Sea Ice Evolution after 100 years.")
+    plt.savefig(save_dir + "BoxPlot" + ".png", dpi=300)
+    # plt.show()
+
+
 ### Temporal series definitions ###
 # Target seasonal cycle of ice thickness of MU71
 hi_MU71 = [
@@ -2143,3 +2381,5 @@ if __name__ == "__main__":
         )
         subplot_sum_proj()
         subplot_sum_proj2()
+        box_plots()
+    box_plots()
