@@ -529,19 +529,24 @@ def box_plots():
     himax_03 = himax_pr[-1,:,0]
     himin_03 = himin_pr[-1,:,0]
     himean_03 = himean_pr[-1,:,0]
+    Tsu_03 = Tsumin_pr[-1,:,0]
 
     himax_06 = himax_pr[-1,:,1]
     himin_06 = himin_pr[-1,:,1]
     himean_06 = himean_pr[-1,:,1]
+    Tsu_06 = Tsumin_pr[-1,:,1]
 
     himax_12 = himax_pr[-1,:,2]
     himin_12 = himin_pr[-1,:,2]
     himean_12 = himean_pr[-1,:,2]
+    Tsu_12 = Tsumin_pr[-1,:,2]
 
-    fig, axs = plt.subplots(ncols = 3)
+ 
+
+    fig, axs = plt.subplots(ncols = 2,nrows = 2)
     
-    
-    bplot = axs[0].boxplot([himax_03,himax_06,himax_12],
+    ###############
+    bplot = axs[0,0].boxplot([himax_03,himax_06,himax_12],
                      vert=False,  # horizontal box alignment
                      patch_artist=True,  # fill with color
                      labels=["PR03","PR06","PR12"])  # will be used to label x-ticks
@@ -551,7 +556,8 @@ def box_plots():
     for median in bplot['medians']:
         median.set_color('black')
 
-    bplot = axs[1].boxplot([himin_03,himin_06,himin_12],
+    #################
+    bplot = axs[0,1].boxplot([himin_03,himin_06,himin_12],
                      vert=False,  # horizontal box alignment
                      patch_artist=True,  # fill with color
                      labels=["PR03","PR06","PR12"])  # will be used to label x-ticks
@@ -560,8 +566,9 @@ def box_plots():
         patch.set_facecolor(color)  
     for median in bplot['medians']:
         median.set_color('black')
-
-    bplot = axs[2].boxplot([himean_03,himean_06,himean_12],
+    
+    ##################
+    bplot = axs[1,0].boxplot([himean_03,himean_06,himean_12],
                      vert=False,  # horizontal box alignment
                      patch_artist=True,  # fill with color
                      labels=["PR03","PR06","PR12"])  # will be used to label x-ticks
@@ -569,17 +576,36 @@ def box_plots():
     for patch, color in zip(bplot['boxes'], colors):
         patch.set_facecolor(color)
     titles = ["Maximum ice thickness", 'Minimum ice thickness', 'mean ice thickness']
-    for ax, title in zip(axs,titles):
+    
+    for median in bplot['medians']:
+        median.set_color('black')
+
+    ##################
+    bplot = axs[1,1].boxplot([Tsu_03,Tsu_06,Tsu_12],
+                     vert=False,  # horizontal box alignment
+                     patch_artist=True,  # fill with color
+                     labels=["PR03","PR06","PR12"])  # will be used to label x-ticks
+    colors = ['yellow','orange','red']
+    for patch, color in zip(bplot['boxes'], colors):
+        patch.set_facecolor(color)
+
+
+
+    titles = ["Maximum ice thickness", 'Minimum ice thickness', 'mean ice thickness', 'Minimum surface Temperature']
+    units = ["[m]","[m]","[m]",'[K]']
+    for ax, title, unit in zip(axs.flat,titles, units):
         ax.grid()
-        ax.set_xlabel("[m]")
+        ax.set_xlabel(unit)
         ax.title.set_text(title)
     for median in bplot['medians']:
         median.set_color('black')
+
+
     fig.suptitle('Sea Ice thickness distribution after 100 years.')
     plt.show()
 
 
-
+box_plots()
 
 def plot_all_mod(data, data_name, N_mod, extra_label, display_single_models = False):
     #figure = plt.figure(figsize=(16, 10))
