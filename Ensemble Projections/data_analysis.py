@@ -527,9 +527,6 @@ def comp_SIGUS_ENS():
 
 ##### Display #####
 
-def find_incoherent_models():
-    for model in range(np.shape()):
-        pass
 
 def box_plots(separate_snow = False):
     himax_03 = himax_pr[-1,:,0]
