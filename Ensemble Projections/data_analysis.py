@@ -17,7 +17,8 @@ import matplotlib.gridspec as gridspec
 from sklearn.metrics import mean_squared_error
 
 ################################################### Parameters #############################################################
-
+exec_final = True
+exec_all = False
 ################################ Script Parameters #######################################
 N_mod_CTL = 15  # number of models at disposal for the CTL run [Adim]
 N_mod_PR = 14  # number of models at disposal for the PR run [Adim]
@@ -26,8 +27,10 @@ N_days_CTL = 365 * N_years_CTL  # number of days in the CTL simulation [Adim]
 N_month_CTL = 12 * N_years_CTL  # number of month in the CTL simulation [Adim]
 N_years_PR = 100  # number of years in the PR simulation [Adim]
 N_days_PR = 365 * N_years_PR  # number of days in the PR simulation [Adim]
+N_pr = 3  # number of projection scenario used
 Day_0 = 0
 Month_0 = 0
+
 ################################ Display Parameters #######################################
 plt.rcParams["text.usetex"] = True
 save_dir = "/home/amaury/Bureau/LPHYS2265 - Sea ice ocean atmosphere interactions in polar regions/Projet - Multimodel Analysis/Figures/"
@@ -44,9 +47,9 @@ Tsu = CTL["Tsu"]
 Tw = CTL["Tw"]
 doy = CTL["doy"]
 model = CTL["model"]
-# one-liner to read a single variable
 
 ### Setting NaN value to the h_s variable for the models that don't have snow implemented ###
+# Different labeling and indexation that will be usefull for analysis
 model_name_without_snow = [
     "ANTIM",
     "BRAILLE_ANE",
@@ -56,8 +59,15 @@ model_name_without_snow = [
     "MisterFreeze",
 ]
 model_index_without_snow = [0, 1, 2, 3, 6, 8]
+model_index_without_snow_student = [0, 2, 3, 6, 8]
 for i in model_index_without_snow:
     hs[:, i] = np.NaN
+
+model_index_student = [0, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13]
+model_name_vancop_Semt_0_lay = ["SUPERN_ICE"]
+model_index_vancop_Semt_0_lay = [12]
+model_name_vancop_diff = ["BRAILLE_ANE", "YBLAIRE"]
+model_index_vancop_diff = [1, 14]
 
 
 ##### Read PR #####
@@ -82,6 +92,7 @@ Tsumin = PR["Tsumin"]
 
 
 def mean_all_mod(data):
+    """Computes the all model mean for a given variable with a mask for the invalid entry"""
     # transform the 0 in Nan
     # data = np.where(data == 0, np.nan, data)
     return np.mean(ma.masked_invalid(data), axis=1)
@@ -205,10 +216,11 @@ def std_var_mean_thick(data):
 
 
 ##### Comparison data series #####
+# Set of built-in function that allows to compute different scores and errors values for different models and data set
 
 
 def comp_ENS_MU71():
-    ##### Comparison between ENSEMBLE and MU71 #####
+    """Comparison between ENSEMBLE and MU71"""
     ### Computation of the error on annual mean ice thickness the ENSEMBLE mean with respect to MU71 ###
     mean_ENS_hi = mean_all_mod(data=hi)
     mean_ENS_month_hi = month_mean(
@@ -244,7 +256,7 @@ def comp_ENS_MU71():
 
 
 def comp_TSIMAL_MU71():
-    ##### Comparison between TSIMAL and MU71 #####
+    """Comparison between TSIMAL and MU71"""
     ### Computation of the error on annual mean ice thickness the TSIMAL mean with respect to MU71 ###
     mean_ENS_hi = mean_all_mod(data=hi)
     mean_ENS_month_hi = month_mean(
@@ -280,7 +292,7 @@ def comp_TSIMAL_MU71():
 
 
 def comp_SIGUS_MU71():
-    ##### Comparison between SIGUS and MU71 #####
+    """Comparison between SIGUS and MU71"""
     ### Computation of the error on annual mean ice thickness the SIGUS mean with respect to MU71 ###
     mean_ENS_hi = mean_all_mod(data=hi)
     mean_ENS_month_hi = month_mean(
@@ -316,7 +328,7 @@ def comp_SIGUS_MU71():
 
 
 def comp_TSIMAL_ENS():
-    ##### Comparison between ENSEMBLE and TSIMAL #####
+    """Comparison between ENSEMBLE and TSIMAL"""
     ### Computation of the error on annual mean ice thickness of TSIMAL with respect to the ENSEMBLE ###
     mean_ENS_hi = mean_all_mod(data=hi)
     mean_ENS_month_hi = month_mean(
@@ -418,7 +430,7 @@ def comp_TSIMAL_ENS():
 
 
 def comp_SIGUS_ENS():
-    ##### Comparison between ENSEMBLE and SIGUS #####
+    """Comparison between ENSEMBLE and SIGUS"""
     ### Computation of the error on annual mean ice thickness of SIGUS with respect to the ENSEMBLE ###
     mean_ENS_hi = mean_all_mod(data=hi)
     mean_ENS_month_hi = month_mean(
@@ -523,6 +535,8 @@ def comp_SIGUS_ENS():
 
 
 def plot_all_mod(data, data_name, N_mod, extra_label):
+    """Basic plotting function that display for a given variable the ensemble members value for that variable
+    and also the ENS mean for that variable"""
     figure = plt.figure(figsize=(16, 10))
     if data_name == "hi_mean_month":
         lab_size_fact = 0.5
@@ -835,6 +849,7 @@ def plot_all_mod2(
 
 
 def subplot_all_mod(data1, data2, data3, data_name, N_mod, extra_label):
+    """Subplot with all models plots for three differents variables"""
     figure = plt.figure(figsize=(16, 10))
 
     # Create 2x2 sub plots
@@ -912,7 +927,16 @@ def subplot_all_mod(data1, data2, data3, data_name, N_mod, extra_label):
     plt.clf()
 
 
-def subplot_all_mod2(data, data_name, N_mod, extra_label, display_single_models=False):
+def subplot_all_mod2(
+    data,
+    data_name,
+    N_mod,
+    extra_label,
+    display_single_models=False,
+    dist_models=False,
+    supern_displ=False,
+):
+    """Subplot with models ENS mean and Std + Distinction for models having snow and those who doesnt. Plot of the mean ice thickness and it's daily variation"""
     fig = plt.figure(figsize=(16, 10))
     # gs = gridspec.GridSpec(2, 2, wspace=0.25, hspace=0.1, left=0.001, right=0.98)
 
@@ -959,11 +983,42 @@ def subplot_all_mod2(data, data_name, N_mod, extra_label, display_single_models=
 
     ##### - Left subplots - ####
     ##- Individuals models - ##
+    if dist_models == True:
+        # model without snow #
+        axs[0].plot(
+            time_range,
+            data[:, model_index_vancop_diff[0]],
+            alpha=0.6,
+            linewidth=3 * lab_size_fact_mod,
+            color="tab:red",
+            linestyle="dashed",
+            label="BRAILLE_ANE",
+        )
+        # model with snow #
+        axs[0].plot(
+            time_range,
+            data[:, model_index_vancop_diff[1]],
+            alpha=0.6,
+            linewidth=3 * lab_size_fact_mod,
+            color="tab:orange",
+            linestyle="-.",
+            label="YBLAIRE",
+        )
+        if supern_displ == True:
+            axs[0].plot(
+                time_range,
+                data[:, model_index_vancop_Semt_0_lay[0]],
+                alpha=0.6,
+                linewidth=3 * lab_size_fact_mod,
+                color="tab:orange",
+                linestyle=":",
+                label="SUPERN_ICE",
+            )
     if display_single_models:
         # without snow
         axs[0].plot(
             time_range,
-            np.take(data, model_index_without_snow, axis=1),
+            np.take(data, model_index_without_snow_student, axis=1),
             alpha=0.6,
             linewidth=1 * lab_size_fact_mod,
             color="tab:red",
@@ -971,12 +1026,11 @@ def subplot_all_mod2(data, data_name, N_mod, extra_label, display_single_models=
         # with snow
         axs[0].plot(
             time_range,
-            np.delete(data, model_index_without_snow, axis=1),
+            np.delete(data, model_index_without_snow_student, axis=1),
             alpha=0.6,
             linewidth=1 * lab_size_fact_mod,
             color="tab:orange",
         )
-
     ## - Mean - ##
     # With snow
     axs[0].plot(
@@ -1028,6 +1082,37 @@ def subplot_all_mod2(data, data_name, N_mod, extra_label, display_single_models=
     )
 
     #### - Right Subplots - ####
+    if dist_models == True:
+        # model without snow #
+        axs[1].plot(
+            time_range,
+            data[:, model_index_vancop_diff[0]],
+            alpha=0.6,
+            linewidth=3 * lab_size_fact_mod,
+            color="tab:red",
+            linestyle="dashed",
+            label="BRAILLE_ANE",
+        )
+        # model with snow #
+        axs[1].plot(
+            time_range,
+            data[:, model_index_vancop_diff[1]],
+            alpha=0.6,
+            linewidth=3 * lab_size_fact_mod,
+            color="tab:orange",
+            linestyle="-.",
+            label="YBLAIRE",
+        )
+        if supern_displ == True:
+            axs[1].plot(
+                time_range,
+                data[:, model_index_vancop_Semt_0_lay[0]],
+                alpha=0.6,
+                linewidth=3 * lab_size_fact_mod,
+                color="tab:orange",
+                linestyle=":",
+                label="SUPERN_ICE",
+            )
     if display_single_models:
         # without snow
         axs[1].plot(
@@ -1175,7 +1260,10 @@ def subplot_all_mod2(data, data_name, N_mod, extra_label, display_single_models=
         extra_label_2 = "_dsm"
     else:
         extra_label_2 = ""
-
+    if dist_models:
+        extra_label_3 = "_dm"
+    else:
+        extra_label_3 = ""
     plt.savefig(
         save_dir
         + extra_label
@@ -1183,6 +1271,7 @@ def subplot_all_mod2(data, data_name, N_mod, extra_label, display_single_models=
         + data_name
         + "_DS"
         + extra_label_2
+        + extra_label_3
         + ".png",
         dpi=300,
     )
@@ -1191,9 +1280,8 @@ def subplot_all_mod2(data, data_name, N_mod, extra_label, display_single_models=
 
 
 def summarized_projection(display_single_models=False, save=False):
-    """
-    Plots all relevant informations about projection.
-    Turn displaY_single_models to True if you want to have see all the models results.
+    """Plots all variables informations under all the projection scenarios.
+    Turn display_single_models to True if you want to have see all the models results.
     """
     PR03_himean = himean[:, :, 0]
     PR03_himax = himax[:, :, 0]
@@ -1270,7 +1358,7 @@ def summarized_projection(display_single_models=False, save=False):
             mean[0, :] + std[0, :],
             alpha=0.7,
             color="tab:blue",
-            label=r"$\pm \frac{\sigma_{PR03}}{2}$",
+            label=r"$\sigma_{PR03}$",
         )
 
         #### - PR06 - ####
@@ -1297,7 +1385,7 @@ def summarized_projection(display_single_models=False, save=False):
             mean[1, :] + std[1, :],
             alpha=0.7,
             color="tab:orange",
-            label=r"$\pm \frac{\sigma_{PR06}}{2}$",
+            label=r"$\sigma_{PR06}$",
         )
 
         #### - PR12 - ####
@@ -1324,7 +1412,7 @@ def summarized_projection(display_single_models=False, save=False):
             mean[2, :] + std[2, :],
             alpha=0.7,
             color="tab:red",
-            label=r"$\pm \frac{\sigma_{PR12}}{2}$",
+            label=r"$\sigma_{PR12}$",
         )
 
         plt.legend(fontsize=24)
@@ -1340,7 +1428,404 @@ def summarized_projection(display_single_models=False, save=False):
             plt.show()
 
 
+def summarized_projection2(pr_label, pr_index, display_single_models=False):
+    """Same as summarized_projection() but used for ploting trend of himax and himean for different projections in order to distinguish where are the most
+    important impact of sea ice lost for each projection.
+    Turn display_single_models to True if you want to have see all the models results.
+    pr_index = 0 for PR03, = 1 for PR06 and = 2 for PR12
+    """
+
+    PR03_himean = himean[:, :, 0]
+    PR03_himax = himax[:, :, 0]
+    PR03_himin = himin[:, :, 0]
+    PR03_hsmax = hsmax[:, :, 0]
+    PR03_Tsumin = Tsumin[:, :, 0]
+
+    PR06_himean = himean[:, :, 1]
+    PR06_himax = himax[:, :, 1]
+    PR06_himin = himin[:, :, 1]
+    PR06_hsmax = hsmax[:, :, 1]
+    PR06_Tsumin = Tsumin[:, :, 1]
+
+    PR12_himean = himean[:, :, 2]
+    PR12_himax = himax[:, :, 2]
+    PR12_himin = himin[:, :, 2]
+    PR12_hsmax = hsmax[:, :, 2]
+    PR12_Tsumin = Tsumin[:, :, 2]
+
+    # The following arrays have dims (n_proj = 3,n_year = 100, n_mod = 14):   -n_proj for the projection,
+    #                                                                         -n_year for the year
+    #                                                                         -n_mod for the model
+    PR_himean = np.array([PR03_himean, PR06_himean, PR12_himean])
+    PR_himax = np.array([PR03_himax, PR06_himax, PR12_himax])
+    PR_himin = np.array([PR03_himin, PR06_himin, PR12_himin])
+    PR_hsmax = np.array([PR03_hsmax, PR06_hsmax, PR12_hsmax])
+    PR_Tsumin = np.array([PR03_Tsumin, PR06_Tsumin, PR12_Tsumin])
+
+    # Regrouping all datas in a single dictionnary to allows faster and more flexible plotting.
+    Projections = {
+        "himean": PR_himean,
+        "himax": PR_himax,
+        "himin": PR_himin,
+        "hsmax": PR_hsmax,
+        "Tsumin": PR_Tsumin,
+    }
+
+    figure = plt.figure(figsize=(16, 10))
+    mean_max = np.mean(PR_himax[pr_index], axis=1)
+    # print(mean_max)
+    mean_min = np.mean(PR_himin[pr_index], axis=1)
+    # print(mean_min)
+    std_max = np.std(PR_himax[pr_index], axis=1)
+    # print(std_max)
+    std_min = np.std(PR_himin[pr_index], axis=1)
+    # print(std_min)
+
+    #### - PRXX - ####
+    # Individuals models
+    if display_single_models:
+        plt.plot(
+            [year for year in range(N_years_PR)],
+            Projections[himin][pr_index, :, :],
+            alpha=0.6,
+            color="tab:red",
+        )
+        plt.plot(
+            [year for year in range(N_years_PR)],
+            Projections[himax][pr_index, :, :],
+            alpha=0.6,
+            color="tab:blue",
+        )
+    # ensemble mean hi_min
+    plt.plot(
+        [year for year in range(N_years_PR)],
+        mean_min,
+        color="tab:red",
+        label=r"$hi_{min}$",
+        linewidth=4,
+    )
+    # shadow std
+    plt.fill_between(
+        [year for year in range(N_years_PR)],
+        mean_min - std_min,
+        mean_min + std_min,
+        alpha=0.7,
+        color="tab:red",
+        label=r"$\sigma_{hi_{min}}$",
+    )
+
+    # ensemble mean hi_max
+    plt.plot(
+        [year for year in range(N_years_PR)],
+        mean_max,
+        color="tab:blue",
+        label=r"$hi_{max}$",
+        linewidth=4,
+    )
+    # shadow std
+    plt.fill_between(
+        [year for year in range(N_years_PR)],
+        mean_max - std_max,
+        mean_max + std_max,
+        alpha=0.7,
+        color="tab:blue",
+        label=r"$\sigma_{hi_{max}}$",
+    )
+
+    hi_max_diff = mean_max[0] - mean_max[-1]
+    hi_min_diff = mean_min[0] - mean_min[-1]
+    max_delta = max(hi_max_diff, hi_min_diff)
+    min_delta = min(hi_max_diff, hi_min_diff)
+    delta_seasonal = max_delta - min_delta
+
+    plt.title(
+        f"Multi-model Seasonal Variation Analysis for "
+        + pr_label
+        + " Scenario\n"
+        + r"Seasonal Anomaly = $\Delta hi_{min} - \Delta hi_{max} =$"
+        + "{:.3f}".format(delta_seasonal)
+        + "m",
+        size=28,
+    )
+
+    plt.legend(fontsize=24)
+    plt.xticks(fontsize=24)
+    plt.yticks(fontsize=24)
+    plt.ylabel(r"$h_i [m]$", size=29)
+    plt.xlabel("Year", size=29)
+    plt.grid()
+    plt.savefig(save_dir + "Seas_Var_" + pr_label + ".png")
+    # plt.show()
+    plt.clf()
+
+    print("---------------------------------------------------")
+    print("      " + pr_label + " SEASONAL VARIATION ANALYSIS")
+    print("---------------------------------------------------")
+    print("hi_max[0] - hi_max[-1] = {:.3f}".format(hi_max_diff) + "m")
+    print("hi_min[0] - hi_min[-1] = {:.3f}".format(hi_min_diff) + "m")
+    print("Seasonal Anomaly = {:.3f}".format(delta_seasonal) + "m")
+    print("---------------------------------------------------")
+
+
+def subplot_sum_proj(display_single_models=False):
+    """Same as summarized_projection2() but with the three subplots associated to the three PR scenarios in one figure.
+    Used for ploting trend of himax and himean for different projections in order to distinguish where are the most
+    important impact of sea ice lost for each projection.
+    Turn display_single_models to True if you want to have see all the models results.
+    pr_index = 0 for PR03, = 1 for PR06 and = 2 for PR12
+    """
+
+    PR03_himean = himean[:, :, 0]
+    PR03_himax = himax[:, :, 0]
+    PR03_himin = himin[:, :, 0]
+    PR03_hsmax = hsmax[:, :, 0]
+    PR03_Tsumin = Tsumin[:, :, 0]
+
+    PR06_himean = himean[:, :, 1]
+    PR06_himax = himax[:, :, 1]
+    PR06_himin = himin[:, :, 1]
+    PR06_hsmax = hsmax[:, :, 1]
+    PR06_Tsumin = Tsumin[:, :, 1]
+
+    PR12_himean = himean[:, :, 2]
+    PR12_himax = himax[:, :, 2]
+    PR12_himin = himin[:, :, 2]
+    PR12_hsmax = hsmax[:, :, 2]
+    PR12_Tsumin = Tsumin[:, :, 2]
+
+    # The following arrays have dims (n_proj = 3,n_year = 100, n_mod = 14):   -n_proj for the projection,
+    #                                                                         -n_year for the year
+    #                                                                         -n_mod for the model
+    PR_himean = np.array([PR03_himean, PR06_himean, PR12_himean])
+    PR_himax = np.array([PR03_himax, PR06_himax, PR12_himax])
+    PR_himin = np.array([PR03_himin, PR06_himin, PR12_himin])
+    PR_hsmax = np.array([PR03_hsmax, PR06_hsmax, PR12_hsmax])
+    PR_Tsumin = np.array([PR03_Tsumin, PR06_Tsumin, PR12_Tsumin])
+
+    # Regrouping all datas in a single dictionnary to allows faster and more flexible plotting.
+    Projections = {
+        "himean": PR_himean,
+        "himax": PR_himax,
+        "himin": PR_himin,
+        "hsmax": PR_hsmax,
+        "Tsumin": PR_Tsumin,
+    }
+    figure = plt.figure(figsize=(16, 18))
+    gs = gridspec.GridSpec(
+        3, 1, wspace=0.6, hspace=0.3, left=0.1, right=0.98, top=0.93, bottom=0.08
+    )
+    for pr_index in range(N_pr):
+        mean_max = np.mean(PR_himax[pr_index], axis=1)
+        # print(mean_max)
+        mean_min = np.mean(PR_himin[pr_index], axis=1)
+        # print(mean_min)
+        std_max = np.std(PR_himax[pr_index], axis=1)
+        # print(std_max)
+        std_min = np.std(PR_himin[pr_index], axis=1)
+        # print(std_min)
+
+        # plt.figure()
+        ### Figure pr_index ###
+        ax = plt.subplot(gs[pr_index])  # row i, col 0
+        # Individuals models
+        if display_single_models:
+            plt.plot(
+                [year for year in range(N_years_PR)],
+                Projections[himin][pr_index, :, :],
+                alpha=0.6,
+                color="tab:red",
+            )
+            plt.plot(
+                [year for year in range(N_years_PR)],
+                Projections[himax][pr_index, :, :],
+                alpha=0.6,
+                color="tab:blue",
+            )
+        # ensemble mean hi_min
+        plt.plot(
+            [year for year in range(N_years_PR)],
+            mean_min,
+            color="tab:red",
+            label=r"$hi_{min}$",
+            linewidth=4,
+        )
+        # shadow std
+        plt.fill_between(
+            [year for year in range(N_years_PR)],
+            mean_min - std_min,
+            mean_min + std_min,
+            alpha=0.7,
+            color="tab:red",
+            label=r"$\sigma_{hi_{min}}$",
+        )
+        # ensemble mean hi_max
+        plt.plot(
+            [year for year in range(N_years_PR)],
+            mean_max,
+            color="tab:blue",
+            label=r"$hi_{max}$",
+            linewidth=4,
+        )
+        # shadow std
+        plt.fill_between(
+            [year for year in range(N_years_PR)],
+            mean_max - std_max,
+            mean_max + std_max,
+            alpha=0.7,
+            color="tab:blue",
+            label=r"$\sigma_{hi_{max}}$",
+        )
+
+        hi_max_diff = mean_max[0] - mean_max[-1]
+        hi_min_diff = mean_min[0] - mean_min[-1]
+        max_delta = max(hi_max_diff, hi_min_diff)
+        min_delta = min(hi_max_diff, hi_min_diff)
+        delta_seasonal = max_delta - min_delta
+
+        pr_label_ar = ["PR03", "PR06", "PR12"]
+        pr_label = pr_label_ar[pr_index]
+
+        print("---------------------------------------------------")
+        print("      " + pr_label + " SEASONAL VARIATION ANALYSIS")
+        print("---------------------------------------------------")
+        print("hi_max[0] - hi_max[-1] = {:.3f}".format(hi_max_diff) + "m")
+        print("hi_min[0] - hi_min[-1] = {:.3f}".format(hi_min_diff) + "m")
+        print("Seasonal Anomaly = {:.3f}".format(delta_seasonal) + "m")
+        print("---------------------------------------------------")
+
+        plt.title(
+            pr_label
+            + " Scenario "
+            + r"Seasonal Anomaly = $\Delta hi_{min} - \Delta hi_{max} =$"
+            + "{:.3f}".format(delta_seasonal)
+            + "m",
+            size=36,
+        )
+
+        plt.legend(fontsize=30)
+        plt.xticks(fontsize=28)
+        plt.yticks(fontsize=32)
+        plt.ylabel(r"$h_i [m]$", size=34)
+        plt.grid()
+
+    plt.xlabel("Year", size=34)
+    plt.savefig(save_dir + "Subplot_Seas_Var_" + pr_label + ".png")
+    # plt.show()
+    plt.clf()
+
+
+def subplot_sum_proj2(display_single_models=False):
+    """Vertical Subplot of the summarized projections with himean, hsmax,Tsumin
+    Turn display_single_models to True if you want to have see all the models results.
+    pr_index = 0 for PR03, = 1 for PR06 and = 2 for PR12
+    """
+
+    PR03_himean = himean[:, :, 0]
+    PR03_himax = himax[:, :, 0]
+    PR03_himin = himin[:, :, 0]
+    PR03_hsmax = hsmax[:, :, 0]
+    PR03_Tsumin = Tsumin[:, :, 0]
+
+    PR06_himean = himean[:, :, 1]
+    PR06_himax = himax[:, :, 1]
+    PR06_himin = himin[:, :, 1]
+    PR06_hsmax = hsmax[:, :, 1]
+    PR06_Tsumin = Tsumin[:, :, 1]
+
+    PR12_himean = himean[:, :, 2]
+    PR12_himax = himax[:, :, 2]
+    PR12_himin = himin[:, :, 2]
+    PR12_hsmax = hsmax[:, :, 2]
+    PR12_Tsumin = Tsumin[:, :, 2]
+
+    # The following arrays have dims (n_proj = 3,n_year = 100, n_mod = 14):   -n_proj for the projection,
+    #                                                                         -n_year for the year
+    #                                                                         -n_mod for the model
+    PR_himean = np.array([PR03_himean, PR06_himean, PR12_himean])
+    PR_himax = np.array([PR03_himax, PR06_himax, PR12_himax])
+    PR_himin = np.array([PR03_himin, PR06_himin, PR12_himin])
+    PR_hsmax = np.array([PR03_hsmax, PR06_hsmax, PR12_hsmax])
+    PR_Tsumin = np.array([PR03_Tsumin, PR06_Tsumin, PR12_Tsumin])
+
+    # Regrouping all datas in a single dictionnary to allows faster and more flexible plotting.
+    Projections = {
+        "himean": PR_himean,
+        "himax": PR_himax,
+        "himin": PR_himin,
+        "hsmax": PR_hsmax,
+        "Tsumin": PR_Tsumin,
+    }
+    figure = plt.figure(figsize=(16, 24))
+    gs = gridspec.GridSpec(
+        3, 1, wspace=0.6, hspace=0.3, left=0.1, right=0.98, top=0.96, bottom=0.05
+    )
+    pr_list_name = [r"PR03", r"PR06", r"PR12"]
+    pr_list_name_std = [r"$\sigma_{PR03}$", r"$\sigma_{PR06}$", r"$\sigma_{PR12}$"]
+    var_list = [PR_himean, PR_hsmax, PR_Tsumin]
+    var_list_name = [r"$hi_{mean}$", r"$hs_{max}$", r"$Tsu_{min}$"]
+    var_list_name_and_unit = [
+        r"$hi_{mean} [m]$",
+        r"$hs_{max} [m]$",
+        r"$Tsu_{min} [°K]$",
+    ]
+    color_list = ["tab:blue", "tab:orange", "tab:red"]
+    label_list_mean = [r"$hi_{mean}$", r"$hs_{max}$", r"$Tsu_{min}$"]
+    label_list_std = [
+        r"$\sigma_{hi_{mean}}$",
+        r"$\sigma_{hs_{max}}$",
+        r"$\sigma_{Tsu_{min}}$",
+    ]
+
+    for fig_index in range(3):
+        var = var_list[fig_index]
+        ### Figure fig_index ###
+        ax = plt.subplot(gs[fig_index])  # row i, col 0
+
+        for pr_index in range(N_pr):
+            mean = np.mean(var[pr_index], axis=1)
+            std_mean = np.std(var[pr_index], axis=1)
+
+            col = color_list[pr_index]
+            lab_mean = label_list_mean[pr_index]
+            lab_std = label_list_std[pr_index]
+
+            # ensemble mean
+            plt.plot(
+                [year for year in range(N_years_PR)],
+                mean,
+                color=col,
+                label=pr_list_name[pr_index],
+                linewidth=4,
+            )
+            # shadow std
+            if fig_index != 1:
+                plt.fill_between(
+                    [year for year in range(N_years_PR)],
+                    mean - std_mean,
+                    mean + std_mean,
+                    alpha=0.7,
+                    color=col,
+                    label=pr_list_name_std[pr_index],
+                )
+        plt.title(
+            "Multi-model " + var_list_name[fig_index] + " Analysis for PR Scenarios",
+            size=40,
+        )
+
+        plt.xticks(fontsize=34)
+        plt.yticks(fontsize=38)
+        plt.ylabel(var_list_name_and_unit[fig_index], size=38)
+        plt.grid()
+
+    plt.legend(fontsize=34, loc="upper left")
+    plt.xlabel("Year", size=38)
+    plt.savefig(save_dir + "Subplot_Sum_PR.png")
+    # plt.show()
+    plt.clf()
+
+
 def subplot_TSIMAL_SIGUS_ENS(data1, data2, data3, N_mod, extra_label):
+    """Display the ENS, SIGUS and TSIMAL informations for hi, hs and Tsu"""
     figure = plt.figure(figsize=(16, 10))
     gs = gridspec.GridSpec(2, 2, wspace=0.25, hspace=0.3, left=0.1, right=0.98)
     plt.figure()
@@ -1407,6 +1892,7 @@ def subplot_TSIMAL_SIGUS_ENS(data1, data2, data3, N_mod, extra_label):
     plt.clf()
 
 
+### Temporal series definitions ###
 # Target seasonal cycle of ice thickness of MU71
 hi_MU71 = [
     2.82,
@@ -1436,195 +1922,224 @@ time_range_pr = np.arange(
 
 
 if __name__ == "__main__":
-    ######################################## Control Simulations Analysis #########################################
-    ##### Plot of the ensemble simulations with daily resolution #####
-    """plot_all_mod(data=hi, data_name="hi", N_mod=N_mod_CTL, extra_label="CTL")
-    plot_all_mod(data=Tsu, data_name="Tsu", N_mod=N_mod_CTL, extra_label="CTL")
-    plot_all_mod(data=hs, data_name="hs", N_mod=N_mod_CTL, extra_label="CTL")
-    subplot_all_mod(
-        data1=hi,
-        data2=Tsu,
-        data3=hs,
-        data_name=["hi,Tsu,hs"],
-        N_mod=N_mod_CTL,
-        extra_label="CTL",
-    )
+    if exec_all:
+        ######################################## Control Simulations Analysis #########################################
+        ##### Plot of the ensemble simulations with daily resolution #####
+        plot_all_mod(data=hi, data_name="hi", N_mod=N_mod_CTL, extra_label="CTL")
+        plot_all_mod(data=Tsu, data_name="Tsu", N_mod=N_mod_CTL, extra_label="CTL")
+        plot_all_mod(data=hs, data_name="hs", N_mod=N_mod_CTL, extra_label="CTL")
+        subplot_all_mod(
+            data1=hi,
+            data2=Tsu,
+            data3=hs,
+            data_name=["hi,Tsu,hs"],
+            N_mod=N_mod_CTL,
+            extra_label="CTL",
+        )
 
-    ### Computation of the month mean of the variables ###
-    """
-    # hi #
-    hi_mean_month = np.zeros((12, N_mod_CTL))
-    for model in range(N_mod_CTL):
-        hi_mean_month_mod = month_mean(hi[:, model])
-        hi_mean_month[:, model] = hi_mean_month_mod
-    # print(hi_mean_month)
-    """
-    # hs #
-    hs_mean_month = np.zeros((12, N_mod_CTL))
-    for model in range(N_mod_CTL):
-        hs_mean_month_mod = month_mean(hs[:, model])
-        hs_mean_month[:, model] = hs_mean_month_mod
-    # print(hs_mean_month)
-    # hi #
-    Tsu_mean_month = np.zeros((12, N_mod_CTL))
-    for model in range(N_mod_CTL):
-        Tsu_mean_month_mod = month_mean(Tsu[:, model])
-        Tsu_mean_month[:, model] = Tsu_mean_month_mod
-    # print(Tsu_mean_month)
-    ### Plot of the ensemble simulations with month resolution ###
-    plot_all_mod(
-        data=hi_mean_month,
-        data_name="hi_mean_month",
-        N_mod=N_mod_CTL,
-        extra_label="CTL",
-    )
-    subplot_all_mod(
-        data1=hi_mean_month,
-        data2=Tsu,
-        data3=hs,
-        data_name=["hi_mean_month,Tsu,hs"],
-        N_mod=N_mod_CTL,
-        extra_label="CTL",
-    )
-    ##### Plot with distinction betwsen models with and without snow #####
-    plot_all_mod(data=hi, data_name="hi", N_mod=N_mod_CTL, extra_label="CTL")
-    plot_all_mod(data=Tsu, data_name="Tsu", N_mod=N_mod_CTL, extra_label="CTL")
-    plot_all_mod(data=hs, data_name="hs", N_mod=N_mod_CTL, extra_label="CTL")
+        ### Computation of the month mean of the variables ###
 
-    ########## Verification ###########
-    comp_ENS_MU71()
-    comp_TSIMAL_MU71()
-    comp_SIGUS_MU71()
-    comp_TSIMAL_ENS()
-    comp_SIGUS_ENS()
-    subplot_TSIMAL_SIGUS_ENS(
-        data1=hs, data2=Tsu, data3=hs, N_mod=N_mod_CTL, extra_label="CTL"
-    )
-    ######################################## Projection Simulations Analysis #####################################
-    ##### Plot of the ensemble simulations with daily resolution #####
-    ### PR03 ###
-    plot_all_mod(
-        data=himax[:, :, 0], data_name="himax", N_mod=N_mod_PR, extra_label="PR03"
-    )
-    plot_all_mod(
-        data=himean[:, :, 0], data_name="himean", N_mod=N_mod_PR, extra_label="PR03"
-    )
-    plot_all_mod(
-        data=himin[:, :, 0], data_name="himin", N_mod=N_mod_PR, extra_label="PR03"
-    )
-    plot_all_mod(
-        data=hsmax[:, :, 0], data_name="hsmax", N_mod=N_mod_PR, extra_label="PR03"
-    )
-    plot_all_mod(
-        data=Tsumin[:, :, 0], data_name="Tsumin", N_mod=N_mod_PR, extra_label="PR03"
-    )
-    subplot_TSIMAL_SIGUS_ENS(
-        data1=himean[:, :, 0],
-        data2=Tsumin[:, :, 0],
-        data3=hsmax[:, :, 0],
-        N_mod=N_mod_PR,
-        extra_label="PR03",
-    )
-    ### PR06 ###
-    plot_all_mod(
-        data=himax[:, :, 1], data_name="himax", N_mod=N_mod_PR, extra_label="PR06"
-    )
-    plot_all_mod(
-        data=himean[:, :, 1], data_name="himean", N_mod=N_mod_PR, extra_label="PR06"
-    )
-    plot_all_mod(
-        data=himin[:, :, 1], data_name="himin", N_mod=N_mod_PR, extra_label="PR06"
-    )
-    plot_all_mod(
-        data=hsmax[:, :, 1], data_name="hsmax", N_mod=N_mod_PR, extra_label="PR06"
-    )
-    plot_all_mod(
-        data=Tsumin[:, :, 1], data_name="Tsumin", N_mod=N_mod_PR, extra_label="PR06"
-    )
-    subplot_TSIMAL_SIGUS_ENS(
-        data1=himean[:, :, 1],
-        data2=Tsumin[:, :, 1],
-        data3=hsmax[:, :, 1],
-        N_mod=N_mod_PR,
-        extra_label="PR06",
-    )
-    ### PR12 ###
-    plot_all_mod(
-        data=himax[:, :, 2], data_name="himax", N_mod=N_mod_PR, extra_label="PR12"
-    )
-    plot_all_mod(
-        data=himean[:, :, 2], data_name="himean", N_mod=N_mod_PR, extra_label="PR12"
-    )
-    plot_all_mod(
-        data=himin[:, :, 2], data_name="himin", N_mod=N_mod_PR, extra_label="PR12"
-    )
-    plot_all_mod(
-        data=hsmax[:, :, 2], data_name="hsmax", N_mod=N_mod_PR, extra_label="PR12"
-    )
-    plot_all_mod(
-        data=Tsumin[:, :, 2], data_name="Tsumin", N_mod=N_mod_PR, extra_label="PR12"
-    )
-    subplot_TSIMAL_SIGUS_ENS(
-        data1=himean[:, :, 2],
-        data2=Tsumin[:, :, 2],
-        data3=hsmax[:, :, 2],
-        N_mod=N_mod_PR,
-        extra_label="PR12",
-    )
-    """
-    ########## FINAL FIGURES ##########
-    ##### Plot of the multi-model grouped by PR scenario ######
-    # summarized_projection(display_single_models=False, save=True)
-    ##### Plot of the multi-model grouped for CTL with DS ######
-    plot_all_mod2(
-        data=hi,
-        data_name="hi",
-        N_mod=N_mod_CTL,
-        extra_label="CTL",
-        display_single_models=False,
-        model_mean=False,
-    )
-    plot_all_mod2(
-        data=hs,
-        data_name="hs",
-        N_mod=N_mod_CTL,
-        extra_label="CTL",
-        display_single_models=True,
-        model_mean=True,
-    )
-    plot_all_mod2(
-        data=Tsu,
-        data_name="Tsu",
-        N_mod=N_mod_CTL,
-        extra_label="CTL",
-        display_single_models=False,
-        model_mean=True,
-    )
-    subplot_all_mod2(
-        data=hi,
-        data_name="hi",
-        N_mod=N_mod_CTL,
-        extra_label="CTL",
-        display_single_models=False,
-    )
-    subplot_all_mod2(
-        data=hi_mean_month,
-        data_name="hi_mean_month",
-        N_mod=N_mod_CTL,
-        extra_label="CTL",
-        display_single_models=False,
-    )
-    subplot_all_mod2(
-        data=Tsu,
-        data_name="Tsu",
-        N_mod=N_mod_CTL,
-        extra_label="CTL",
-        display_single_models=False,
-    )
-    subplot_all_mod2(
-        data=Tw,
-        data_name="Tw",
-        N_mod=N_mod_CTL,
-        extra_label="CTL",
-        display_single_models=False,
-    )
+        # hi #
+        hi_mean_month = np.zeros((12, N_mod_CTL))
+        for model in range(N_mod_CTL):
+            hi_mean_month_mod = month_mean(hi[:, model])
+            hi_mean_month[:, model] = hi_mean_month_mod
+
+        # hs #
+        hs_mean_month = np.zeros((12, N_mod_CTL))
+        for model in range(N_mod_CTL):
+            hs_mean_month_mod = month_mean(hs[:, model])
+            hs_mean_month[:, model] = hs_mean_month_mod
+        # hi #
+        Tsu_mean_month = np.zeros((12, N_mod_CTL))
+        for model in range(N_mod_CTL):
+            Tsu_mean_month_mod = month_mean(Tsu[:, model])
+            Tsu_mean_month[:, model] = Tsu_mean_month_mod
+
+        ### Plot of the ensemble simulations with month resolution ###
+        plot_all_mod(
+            data=hi_mean_month,
+            data_name="hi_mean_month",
+            N_mod=N_mod_CTL,
+            extra_label="CTL",
+        )
+        subplot_all_mod(
+            data1=hi_mean_month,
+            data2=Tsu,
+            data3=hs,
+            data_name=["hi_mean_month,Tsu,hs"],
+            N_mod=N_mod_CTL,
+            extra_label="CTL",
+        )
+        ##### Plot with distinction betwsen models with and without snow #####
+        plot_all_mod(data=hi, data_name="hi", N_mod=N_mod_CTL, extra_label="CTL")
+        plot_all_mod(data=Tsu, data_name="Tsu", N_mod=N_mod_CTL, extra_label="CTL")
+        plot_all_mod(data=hs, data_name="hs", N_mod=N_mod_CTL, extra_label="CTL")
+
+        ##### Plot of the multi-model grouped for CTL with DS ######
+
+        plot_all_mod2(
+            data=hi,
+            data_name="hi",
+            N_mod=N_mod_CTL,
+            extra_label="CTL",
+            display_single_models=False,
+            model_mean=False,
+        )
+        plot_all_mod2(
+            data=hs,
+            data_name="hs",
+            N_mod=N_mod_CTL,
+            extra_label="CTL",
+            display_single_models=True,
+            model_mean=True,
+        )
+        plot_all_mod2(
+            data=Tsu,
+            data_name="Tsu",
+            N_mod=N_mod_CTL,
+            extra_label="CTL",
+            display_single_models=False,
+            model_mean=True,
+        )
+        subplot_all_mod2(
+            data=hi,
+            data_name="hi",
+            N_mod=N_mod_CTL,
+            extra_label="CTL",
+            display_single_models=False,
+        )
+        subplot_all_mod2(
+            data=hi_mean_month,
+            data_name="hi_mean_month",
+            N_mod=N_mod_CTL,
+            extra_label="CTL",
+            display_single_models=False,
+        )
+        subplot_all_mod2(
+            data=Tsu,
+            data_name="Tsu",
+            N_mod=N_mod_CTL,
+            extra_label="CTL",
+            display_single_models=False,
+        )
+        subplot_all_mod2(
+            data=Tw,
+            data_name="Tw",
+            N_mod=N_mod_CTL,
+            extra_label="CTL",
+            display_single_models=False,
+        )
+
+        subplot_all_mod2(
+            data=hi,
+            data_name="hi",
+            N_mod=N_mod_CTL,
+            extra_label="CTL",
+            display_single_models=False,
+            dist_models=True,
+        )
+
+        ########## Verification CTL ###########
+        comp_ENS_MU71()
+        comp_TSIMAL_MU71()
+        comp_SIGUS_MU71()
+        comp_TSIMAL_ENS()
+        comp_SIGUS_ENS()
+        subplot_TSIMAL_SIGUS_ENS(
+            data1=hs, data2=Tsu, data3=hs, N_mod=N_mod_CTL, extra_label="CTL"
+        )
+        ######################################## Projection Simulations Analysis #####################################
+        ##### Plot of the ensemble simulations with daily resolution #####
+        ### PR03 ###
+        plot_all_mod(
+            data=himax[:, :, 0], data_name="himax", N_mod=N_mod_PR, extra_label="PR03"
+        )
+        plot_all_mod(
+            data=himean[:, :, 0], data_name="himean", N_mod=N_mod_PR, extra_label="PR03"
+        )
+        plot_all_mod(
+            data=himin[:, :, 0], data_name="himin", N_mod=N_mod_PR, extra_label="PR03"
+        )
+        plot_all_mod(
+            data=hsmax[:, :, 0], data_name="hsmax", N_mod=N_mod_PR, extra_label="PR03"
+        )
+        plot_all_mod(
+            data=Tsumin[:, :, 0], data_name="Tsumin", N_mod=N_mod_PR, extra_label="PR03"
+        )
+        subplot_TSIMAL_SIGUS_ENS(
+            data1=himean[:, :, 0],
+            data2=Tsumin[:, :, 0],
+            data3=hsmax[:, :, 0],
+            N_mod=N_mod_PR,
+            extra_label="PR03",
+        )
+        ### PR06 ###
+        plot_all_mod(
+            data=himax[:, :, 1], data_name="himax", N_mod=N_mod_PR, extra_label="PR06"
+        )
+        plot_all_mod(
+            data=himean[:, :, 1], data_name="himean", N_mod=N_mod_PR, extra_label="PR06"
+        )
+        plot_all_mod(
+            data=himin[:, :, 1], data_name="himin", N_mod=N_mod_PR, extra_label="PR06"
+        )
+        plot_all_mod(
+            data=hsmax[:, :, 1], data_name="hsmax", N_mod=N_mod_PR, extra_label="PR06"
+        )
+        plot_all_mod(
+            data=Tsumin[:, :, 1], data_name="Tsumin", N_mod=N_mod_PR, extra_label="PR06"
+        )
+        subplot_TSIMAL_SIGUS_ENS(
+            data1=himean[:, :, 1],
+            data2=Tsumin[:, :, 1],
+            data3=hsmax[:, :, 1],
+            N_mod=N_mod_PR,
+            extra_label="PR06",
+        )
+        ### PR12 ###
+        plot_all_mod(
+            data=himax[:, :, 2], data_name="himax", N_mod=N_mod_PR, extra_label="PR12"
+        )
+        plot_all_mod(
+            data=himean[:, :, 2], data_name="himean", N_mod=N_mod_PR, extra_label="PR12"
+        )
+        plot_all_mod(
+            data=himin[:, :, 2], data_name="himin", N_mod=N_mod_PR, extra_label="PR12"
+        )
+        plot_all_mod(
+            data=hsmax[:, :, 2], data_name="hsmax", N_mod=N_mod_PR, extra_label="PR12"
+        )
+        plot_all_mod(
+            data=Tsumin[:, :, 2], data_name="Tsumin", N_mod=N_mod_PR, extra_label="PR12"
+        )
+        subplot_TSIMAL_SIGUS_ENS(
+            data1=himean[:, :, 2],
+            data2=Tsumin[:, :, 2],
+            data3=hsmax[:, :, 2],
+            N_mod=N_mod_PR,
+            extra_label="PR12",
+        )
+        ##### Plot of the multi-model grouped by PR scenario ######
+        summarized_projection(display_single_models=False, save=True)
+
+        summarized_projection2(pr_label="PR03", pr_index=0)
+        summarized_projection2(pr_label="PR06", pr_index=1)
+        summarized_projection2(pr_label="PR12", pr_index=2)
+
+        subplot_sum_proj()
+
+        subplot_sum_proj2()
+
+    ##################################### Execution for the figures in the report #########################################
+    if exec_final:
+        subplot_all_mod2(
+            data=hi,
+            data_name="hi",
+            N_mod=N_mod_CTL,
+            extra_label="CTL",
+            display_single_models=False,
+            dist_models=True,
+        )
+        subplot_sum_proj()
+        subplot_sum_proj2()
