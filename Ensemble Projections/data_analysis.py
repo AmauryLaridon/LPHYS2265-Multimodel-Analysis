@@ -68,6 +68,8 @@ for i in model_index_without_snow:
 ##### Read PR #####
 
 PR = loadmat("./PR.mat")
+print(PR)
+print(np.shape(PR))
 Nmod_pr = PR["Nmod"]
 model_pr = PR["model"]
 year_pr = PR["year"]
@@ -525,6 +527,10 @@ def comp_SIGUS_ENS():
 
 ##### Display #####
 
+def find_incoherent_models():
+    for model in range(np.shape()):
+        pass
+
 def box_plots(separate_snow = False):
     himax_03 = himax_pr[-1,:,0]
     himin_03 = himin_pr[-1,:,0]
@@ -706,9 +712,6 @@ def box_plots(separate_snow = False):
 
     fig.suptitle('Sea Ice thickness distribution after 100 years.')
     plt.show()
-
-
-box_plots()
 
 def plot_all_mod(data, data_name, N_mod, extra_label, display_single_models = False):
     #figure = plt.figure(figsize=(16, 10))
