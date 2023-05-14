@@ -79,8 +79,7 @@ model_index_vancop_diff = [1, 14]
 ##### Read PR #####
 
 PR = loadmat("./PR.mat")
-print(PR)
-print(np.shape(PR))
+
 Nmod_pr = PR["Nmod"]
 model_pr = PR["model"]
 year_pr = PR["year"]
@@ -89,6 +88,31 @@ himin_pr = PR["himin"]
 himean_pr = PR["himean"]
 hsmax_pr = PR["hsmax"]
 Tsumin_pr = PR["Tsumin"]
+
+
+
+def find_wrong_models(show = True):
+    for model in range(len(himin_pr[0,:,0])):
+        for projection in range(3):
+            for day in range(100):
+                if himin_pr[day,model,projection] <= himean_pr[day,model,projection] and himean_pr[day,model,projection] <= himax_pr[day,model,projection]:
+                    pass
+                else:
+                    print(f"Modele nbr = {model} is incorrect")
+                    print(f'model name = f{model_pr[0,model]}')
+                    
+                    break
+    if show:
+        for model in range(len(himin_pr[0,:,0])):
+            fig, axs = plt.subplots(nrows = 3, figsize = (12,8))
+            for projection in range(3):
+                axs[projection].plot([year for year in range(100)],[himin_pr[year,model,projection] for year in range(100)], color = "tab:blue",label = "min")
+                axs[projection].plot([year for year in range(100)],[himean_pr[year,model,projection] for year in range(100)], color = "tab:orange",label = "mean")
+                axs[projection].plot([year for year in range(100)],[himax_pr[year,model,projection] for year in range(100)], color = "tab:red",label = "max")
+            plt.legend()
+            plt.suptitle(f"model = f{model_pr[0,model]}")
+            plt.show()
+find_wrong_models()
 
 ############################################################################################################################
 ###################################################### Data Analysis #######################################################
@@ -183,7 +207,7 @@ def month_mean(data):
     data_mean_month_ar[11] = data_mean
 
     return data_mean_month_ar
-
+    h
 
 ##### Error computation #####
 
@@ -199,26 +223,21 @@ def err_annual_mean_thick(data1, data2):
         (data1_annual_mean_thick - data2_annual_mean_thick) / data2_annual_mean_thick
     ) * 100
     return data1_annual_mean_thick, data2_annual_mean_thick, err_abs, err_rel
-
-
 def MSE_annual_mean_thick(data1, data2):
     """Compute the Mean Squared Error between two data set. The MSE will be used as a diagnostic tool
     for the efficienty of a model or an ensemble of models."""
     mse = mean_squared_error(ma.masked_invalid(data1), ma.masked_invalid(data2))
     return mse
-
-
 def cor_annual_mean_thick(data1, data2):
     """Computes the correlation coefficient for a first model output and the second one."""
     corr_matrix = np.corrcoef(data1, data2)
     r = corr_matrix[0, 1]
     return r
-
-
 def std_var_mean_thick(data):
     """returns the standard deviation of a given data set array"""
     std = np.std(data)
     return std
+
 
 
 ##### Comparison data series #####
@@ -723,8 +742,7 @@ def box_plots(separate_snow = False):
     plt.show()
 
 
-
-def plot_all_mod(data, data_name, N_mod, extra_label):
+def plot_all_mod(data, data_name, N_mod, extra_label, display_single_models = False):
     """Basic plotting function that display for a given variable the ensemble members value for that variable
     and also the ENS mean for that variable"""
     figure = plt.figure(figsize=(16, 10))
@@ -1745,23 +1763,23 @@ def summarized_projection2(pr_label, pr_index, display_single_models=False):
     pr_index = 0 for PR03, = 1 for PR06 and = 2 for PR12
     """
 
-    PR03_himean = himean[:, :, 0]
-    PR03_himax = himax[:, :, 0]
-    PR03_himin = himin[:, :, 0]
-    PR03_hsmax = hsmax[:, :, 0]
-    PR03_Tsumin = Tsumin[:, :, 0]
+    PR03_himean = himean_pr[:, :, 0]
+    PR03_himax = himax_pr[:, :, 0]
+    PR03_himin = himin_pr[:, :, 0]
+    PR03_hsmax = hsmax_pr[:, :, 0]
+    PR03_Tsumin = Tsumin_pr[:, :, 0]
 
-    PR06_himean = himean[:, :, 1]
-    PR06_himax = himax[:, :, 1]
-    PR06_himin = himin[:, :, 1]
-    PR06_hsmax = hsmax[:, :, 1]
-    PR06_Tsumin = Tsumin[:, :, 1]
+    PR06_himean = himean_pr[:, :, 1]
+    PR06_himax = himax_pr[:, :, 1]
+    PR06_himin = himin_pr[:, :, 1]
+    PR06_hsmax = hsmax_pr[:, :, 1]
+    PR06_Tsumin = Tsumin_pr[:, :, 1]
 
-    PR12_himean = himean[:, :, 2]
-    PR12_himax = himax[:, :, 2]
-    PR12_himin = himin[:, :, 2]
-    PR12_hsmax = hsmax[:, :, 2]
-    PR12_Tsumin = Tsumin[:, :, 2]
+    PR12_himean = himean_pr[:, :, 2]
+    PR12_himax = himax_pr[:, :, 2]
+    PR12_himin = himin_pr[:, :, 2]
+    PR12_hsmax = hsmax_pr[:, :, 2]
+    PR12_Tsumin = Tsumin_pr[:, :, 2]
 
     # The following arrays have dims (n_proj = 3,n_year = 100, n_mod = 14):   -n_proj for the projection,
     #                                                                         -n_year for the year
@@ -1796,13 +1814,13 @@ def summarized_projection2(pr_label, pr_index, display_single_models=False):
     if display_single_models:
         plt.plot(
             [year for year in range(N_years_PR)],
-            Projections[himin][pr_index, :, :],
+            Projections["himin"][pr_index, :, :],
             alpha=0.6,
             color="tab:red",
         )
         plt.plot(
             [year for year in range(N_years_PR)],
-            Projections[himax][pr_index, :, :],
+            Projections["himax"][pr_index, :, :],
             alpha=0.6,
             color="tab:blue",
         )
@@ -1885,23 +1903,23 @@ def subplot_sum_proj(display_single_models=False):
     pr_index = 0 for PR03, = 1 for PR06 and = 2 for PR12
     """
 
-    PR03_himean = himean[:, :, 0]
-    PR03_himax = himax[:, :, 0]
-    PR03_himin = himin[:, :, 0]
-    PR03_hsmax = hsmax[:, :, 0]
-    PR03_Tsumin = Tsumin[:, :, 0]
+    PR03_himean = himean_pr[:, :, 0]
+    PR03_himax = himax_pr[:, :, 0]
+    PR03_himin = himin_pr[:, :, 0]
+    PR03_hsmax = hsmax_pr[:, :, 0]
+    PR03_Tsumin = Tsumin_pr[:, :, 0]
 
-    PR06_himean = himean[:, :, 1]
-    PR06_himax = himax[:, :, 1]
-    PR06_himin = himin[:, :, 1]
-    PR06_hsmax = hsmax[:, :, 1]
-    PR06_Tsumin = Tsumin[:, :, 1]
+    PR06_himean = himean_pr[:, :, 1]
+    PR06_himax = himax_pr[:, :, 1]
+    PR06_himin = himin_pr[:, :, 1]
+    PR06_hsmax = hsmax_pr[:, :, 1]
+    PR06_Tsumin = Tsumin_pr[:, :, 1]
 
-    PR12_himean = himean[:, :, 2]
-    PR12_himax = himax[:, :, 2]
-    PR12_himin = himin[:, :, 2]
-    PR12_hsmax = hsmax[:, :, 2]
-    PR12_Tsumin = Tsumin[:, :, 2]
+    PR12_himean = himean_pr[:, :, 2]
+    PR12_himax = himax_pr[:, :, 2]
+    PR12_himin = himin_pr[:, :, 2]
+    PR12_hsmax = hsmax_pr[:, :, 2]
+    PR12_Tsumin = Tsumin_pr[:, :, 2]
 
     # The following arrays have dims (n_proj = 3,n_year = 100, n_mod = 14):   -n_proj for the projection,
     #                                                                         -n_year for the year
@@ -1941,13 +1959,13 @@ def subplot_sum_proj(display_single_models=False):
         if display_single_models:
             plt.plot(
                 [year for year in range(N_years_PR)],
-                Projections[himin][pr_index, :, :],
+                Projections["himin"][pr_index, :, :],
                 alpha=0.6,
                 color="tab:red",
             )
             plt.plot(
                 [year for year in range(N_years_PR)],
-                Projections[himax][pr_index, :, :],
+                Projections["himax"][pr_index, :, :],
                 alpha=0.6,
                 color="tab:blue",
             )
@@ -2030,23 +2048,23 @@ def subplot_sum_proj2(display_single_models=False):
     pr_index = 0 for PR03, = 1 for PR06 and = 2 for PR12
     """
 
-    PR03_himean = himean[:, :, 0]
-    PR03_himax = himax[:, :, 0]
-    PR03_himin = himin[:, :, 0]
-    PR03_hsmax = hsmax[:, :, 0]
-    PR03_Tsumin = Tsumin[:, :, 0]
+    PR03_himean = himean_pr[:, :, 0]
+    PR03_himax = himax_pr[:, :, 0]
+    PR03_himin = himin_pr[:, :, 0]
+    PR03_hsmax = hsmax_pr[:, :, 0]
+    PR03_Tsumin = Tsumin_pr[:, :, 0]
 
-    PR06_himean = himean[:, :, 1]
-    PR06_himax = himax[:, :, 1]
-    PR06_himin = himin[:, :, 1]
-    PR06_hsmax = hsmax[:, :, 1]
-    PR06_Tsumin = Tsumin[:, :, 1]
+    PR06_himean = himean_pr[:, :, 1]
+    PR06_himax = himax_pr[:, :, 1]
+    PR06_himin = himin_pr[:, :, 1]
+    PR06_hsmax = hsmax_pr[:, :, 1]
+    PR06_Tsumin = Tsumin_pr[:, :, 1]
 
-    PR12_himean = himean[:, :, 2]
-    PR12_himax = himax[:, :, 2]
-    PR12_himin = himin[:, :, 2]
-    PR12_hsmax = hsmax[:, :, 2]
-    PR12_Tsumin = Tsumin[:, :, 2]
+    PR12_himean = himean_pr[:, :, 2]
+    PR12_himax = himax_pr[:, :, 2]
+    PR12_himin = himin_pr[:, :, 2]
+    PR12_hsmax = hsmax_pr[:, :, 2]
+    PR12_Tsumin = Tsumin_pr[:, :, 2]
 
     # The following arrays have dims (n_proj = 3,n_year = 100, n_mod = 14):   -n_proj for the projection,
     #                                                                         -n_year for the year
@@ -2229,7 +2247,7 @@ time_range_pr = np.arange(
 )  # time range for the PR simulations in month. Used for plot
 
 
-if __name__ == "__main__":
+""" if __name__ == "__main__":
     if exec_all:
         ######################################## Control Simulations Analysis #########################################
         ##### Plot of the ensemble simulations with daily resolution #####
@@ -2453,3 +2471,4 @@ if __name__ == "__main__":
         subplot_sum_proj2()
         box_plots()
     box_plots()
+ """
