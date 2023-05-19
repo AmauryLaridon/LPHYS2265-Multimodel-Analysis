@@ -989,7 +989,7 @@ def subplot_all_mod2(
             time_range,
             data[:, model_index_vancop_diff[0]],
             alpha=0.6,
-            linewidth=3 * lab_size_fact_mod,
+            linewidth=3.5 * lab_size_fact_mod,
             color="tab:red",
             linestyle="dashed",
             label="BRAILLE_ANE",
@@ -999,7 +999,7 @@ def subplot_all_mod2(
             time_range,
             data[:, model_index_vancop_diff[1]],
             alpha=0.6,
-            linewidth=3 * lab_size_fact_mod,
+            linewidth=3.5 * lab_size_fact_mod,
             color="tab:orange",
             linestyle="-.",
             label="YBLAIRE",
@@ -1009,7 +1009,7 @@ def subplot_all_mod2(
                 time_range,
                 data[:, model_index_vancop_Semt_0_lay[0]],
                 alpha=0.6,
-                linewidth=3 * lab_size_fact_mod,
+                linewidth=3.5 * lab_size_fact_mod,
                 color="tab:orange",
                 linestyle=":",
                 label="SUPERN_ICE",
@@ -1020,7 +1020,7 @@ def subplot_all_mod2(
             time_range,
             np.take(data, model_index_without_snow_student, axis=1),
             alpha=0.6,
-            linewidth=1 * lab_size_fact_mod,
+            linewidth=1.5 * lab_size_fact_mod,
             color="tab:red",
         )
         # with snow
@@ -1028,7 +1028,7 @@ def subplot_all_mod2(
             time_range,
             np.delete(data, model_index_without_snow_student, axis=1),
             alpha=0.6,
-            linewidth=1 * lab_size_fact_mod,
+            linewidth=1.5 * lab_size_fact_mod,
             color="tab:orange",
         )
     ## - Mean - ##
@@ -1036,7 +1036,7 @@ def subplot_all_mod2(
     axs[0].plot(
         time_range,
         np.mean(np.delete(data, model_index_without_snow, axis=1), axis=1),
-        linewidth=4 * lab_size_fact,
+        linewidth=4.5 * lab_size_fact,
         color="tab:orange",
         label=r"SM",
     )
@@ -1044,7 +1044,7 @@ def subplot_all_mod2(
     axs[0].plot(
         time_range,
         np.mean(np.take(data, model_index_without_snow, axis=1), axis=1),
-        linewidth=4 * lab_size_fact,
+        linewidth=4.5 * lab_size_fact,
         color="tab:red",
         label=r"SFM",
     )
@@ -1088,7 +1088,7 @@ def subplot_all_mod2(
             time_range,
             data[:, model_index_vancop_diff[0]],
             alpha=0.6,
-            linewidth=3 * lab_size_fact_mod,
+            linewidth=3.5 * lab_size_fact_mod,
             color="tab:red",
             linestyle="dashed",
             label="BRAILLE_ANE",
@@ -1098,7 +1098,7 @@ def subplot_all_mod2(
             time_range,
             data[:, model_index_vancop_diff[1]],
             alpha=0.6,
-            linewidth=3 * lab_size_fact_mod,
+            linewidth=3.5 * lab_size_fact_mod,
             color="tab:orange",
             linestyle="-.",
             label="YBLAIRE",
@@ -1108,7 +1108,7 @@ def subplot_all_mod2(
                 time_range,
                 data[:, model_index_vancop_Semt_0_lay[0]],
                 alpha=0.6,
-                linewidth=3 * lab_size_fact_mod,
+                linewidth=3.5 * lab_size_fact_mod,
                 color="tab:orange",
                 linestyle=":",
                 label="SUPERN_ICE",
@@ -1119,7 +1119,7 @@ def subplot_all_mod2(
             time_range,
             np.take(data, model_index_without_snow, axis=1),
             alpha=0.6,
-            linewidth=1 * lab_size_fact_mod,
+            linewidth=1.5 * lab_size_fact_mod,
             color="tab:red",
         )
         # with snow
@@ -1127,7 +1127,7 @@ def subplot_all_mod2(
             time_range,
             np.delete(data, model_index_without_snow, axis=1),
             alpha=0.6,
-            linewidth=1 * lab_size_fact_mod,
+            linewidth=1.5 * lab_size_fact_mod,
             color="tab:orange",
         )
 
@@ -1136,7 +1136,7 @@ def subplot_all_mod2(
     axs[1].plot(
         time_range,
         np.mean(data, axis=1),
-        linewidth=4 * lab_size_fact,
+        linewidth=4.5 * lab_size_fact,
         color="tab:blue",
         label=r"ENS",
     )
@@ -1178,14 +1178,14 @@ def subplot_all_mod2(
             time_range_mu,
             hi_MU71,
             label=r"$h_{i_{MU71}}$",
-            linewidth=4 * lab_size_fact,
+            linewidth=4.5 * lab_size_fact,
             color="tab:green",
         )
         axs[1].plot(
             time_range_mu,
             hi_MU71,
             label=r"$h_{i_{MU71}}$",
-            linewidth=4 * lab_size_fact,
+            linewidth=4.5 * lab_size_fact,
             color="tab:green",
         )
     if data_name == "hi_mean_month":
@@ -1193,14 +1193,14 @@ def subplot_all_mod2(
             time_range_mu,
             hi_MU71,
             label=r"$h_{i_{MU71}}$",
-            linewidth=4 * lab_size_fact,
+            linewidth=4.5 * lab_size_fact,
             color="tab:green",
         )
         axs[1].plot(
             time_range_mu,
             hi_MU71,
             label=r"$h_{i_{MU71}}$",
-            linewidth=4 * lab_size_fact,
+            linewidth=4.5 * lab_size_fact,
             color="tab:green",
         )
 
@@ -1214,47 +1214,47 @@ def subplot_all_mod2(
         + r" and their averages "
         + extra_label
         + " simulation",
-        size=24 * lab_size_fact,
+        size=33 * lab_size_fact,
     )
     # axs[0].set_xlabel(label_x, size=25 * lab_size_fact)
     # axs[0].set_xlabel(label_x, fontsize=20)
-    axs[0].set_ylabel(data_name + unit, fontsize=22)
-    axs[0].tick_params(axis="x", labelsize=20)
-    axs[0].tick_params(axis="y", labelsize=20)
+    axs[0].set_ylabel(data_name + unit, fontsize=30)
+    axs[0].tick_params(axis="x", labelsize=25)
+    axs[0].tick_params(axis="y", labelsize=25)
     axs[0].grid()
     if data_name == "hi":
         axs[0].set_ylim(2.1, 3.75)
-    axs[0].legend(fontsize=21 * lab_size_fact)
+    axs[0].legend(fontsize=23 * lab_size_fact)
 
     # axs[1].set_xlabel(label_x, fontsize=20)
     # axs[1].set_ylabel(data_name + unit, fontsize=20)
-    axs[1].tick_params(axis="x", labelsize=20)
-    axs[1].tick_params(axis="y", labelsize=20)
+    axs[1].tick_params(axis="x", labelsize=24)
+    axs[1].tick_params(axis="y", labelsize=24)
     axs[1].grid()
     if data_name == "hi":
         axs[1].set_ylim(2.1, 3.75)
-    axs[1].legend(fontsize=21 * lab_size_fact)
+    axs[1].legend(fontsize=25 * lab_size_fact)
 
-    axs[2].set_xlabel(label_x, fontsize=22)
+    axs[2].set_xlabel(label_x, fontsize=29.5)
     if data_name == "hi":
-        axs[2].set_ylabel("Variation [cm/day]", fontsize=22)
+        axs[2].set_ylabel("Variation [cm/day]", fontsize=30)
     else:
-        axs[2].set_ylabel("Variation " + unit + "/day", fontsize=22)
-    axs[2].tick_params(axis="x", labelsize=20)
-    axs[2].tick_params(axis="y", labelsize=20)
+        axs[2].set_ylabel("Variation " + unit + "/day", fontsize=30)
+    axs[2].tick_params(axis="x", labelsize=24)
+    axs[2].tick_params(axis="y", labelsize=24)
     axs[2].grid()
-    axs[2].legend(fontsize=21 * lab_size_fact)
+    axs[2].legend(fontsize=25 * lab_size_fact)
     if data_name == "hi":
         axs[2].set_ylim(-2, 0.75)
 
-    axs[3].set_xlabel(label_x, fontsize=22)
+    axs[3].set_xlabel(label_x, fontsize=30)
     if data_name == "hi":
         axs[3].set_ylim(-2, 0.75)
     # axs[3].set_ylabel("Variation [cm/days]", fontsize=20)
-    axs[3].tick_params(axis="x", labelsize=20)
-    axs[3].tick_params(axis="y", labelsize=20)
+    axs[3].tick_params(axis="x", labelsize=24)
+    axs[3].tick_params(axis="y", labelsize=24)
     axs[3].grid()
-    axs[3].legend(fontsize=21 * lab_size_fact)
+    axs[3].legend(fontsize=24 * lab_size_fact)
 
     if display_single_models:
         extra_label_2 = "_dsm"
@@ -2125,7 +2125,7 @@ def box_plots(separate_snow=False):
     for median in bplot["medians"]:
         median.set_color("black")
 
-    fig.suptitle("Sea Ice Evolution after 100 years.")
+        fig.suptitle("Sea Ice Evolution after 100 years.")
     plt.savefig(save_dir + "BoxPlot" + ".png", dpi=300)
     # plt.show()
 
@@ -2382,4 +2382,3 @@ if __name__ == "__main__":
         subplot_sum_proj()
         subplot_sum_proj2()
         box_plots()
-    box_plots()
