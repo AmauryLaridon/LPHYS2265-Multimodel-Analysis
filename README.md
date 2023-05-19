@@ -15,4 +15,6 @@ The final report around these questions and the analysis can be found in the *re
 
 For the construction of the TSIMAL (Thermodynamic Sea Ice Model Amaury Laridon) have a look at : https://github.com/AmauryLaridon/LPHYS2265-TSIM
 
+### How to run ? 
 
+Simply execute the python script on your machine. Pay attention that in order to execute and produce all the figures or only the figures used in the *report.pdf* two global parameters have been created *exec_final* and *exec_all*. By default those are set to *False* so nothing is executed. 
